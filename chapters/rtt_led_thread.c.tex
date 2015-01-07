@@ -1,0 +1,39 @@
+\noindent
+\ttfamily
+\hlstd{}\hllin{01\ }\hlkwb{static\ void\ }\hlstd{}\hlkwd{led\textunderscore thread\textunderscore entry}\hlstd{}\hlopt{(}\hlstd{}\hlkwb{void}\hlstd{}\hlopt{{*}\ }\hlstd{parameter}\hlopt{)}\\
+\hllin{02\ }\hlstd{}\hlopt{\{}\\
+\hllin{03\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{rt\textunderscore uint32\textunderscore t\ led\textunderscore mode}\hlopt{={*}((}\hlstd{rt\textunderscore uint32\textunderscore t}\hlopt{)}\hlstd{parameter}\hlopt{);}\\
+\hllin{04\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{rt\textunderscore hw\textunderscore led\textunderscore init}\hlstd{}\hlopt{();}\hlstd{}\hlslc{//LED对应IO初始化}\\
+\hllin{05\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{//限于篇幅，以下仅给出主要逻辑框架，不列举完整代码}\\
+\hllin{06\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{while\ }\hlstd{}\hlopt{(}\hlstd{}\hlnum{1}\hlstd{}\hlopt{)}\\
+\hllin{07\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlopt{\{}\\
+\hllin{08\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwa{switch}\hlstd{}\hlopt{(}\hlstd{led\textunderscore mode}\hlopt{)}\\
+\hllin{09\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlopt{\{}\\
+\hllin{10\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{}\hlkwa{case\ }\hlstd{LED\textunderscore MODE\textunderscore BOTH\textunderscore ON}\hlopt{:}\\
+\hllin{11\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{}\hlslc{//红色LED亮;绿色LED亮;}\\
+\hllin{12\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{}\hlkwa{break}\hlstd{}\hlopt{;}\\
+\hllin{13\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{}\hlkwa{case\ }\hlstd{LED\textunderscore MODE\textunderscore BOTH\textunderscore OFF}\hlopt{:}\\
+\hllin{14\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{}\hlslc{//红色LED灭;绿色LED灭;}\\
+\hllin{15\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{}\hlkwa{break}\hlstd{}\hlopt{;}\\
+\hllin{16\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{}\hlkwa{case\ }\hlstd{LED\textunderscore MODE\textunderscore RED\textunderscore ON}\hlopt{:}\\
+\hllin{17\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{}\hlslc{//红色LED亮;绿色LED灭;}\\
+\hllin{18\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{}\hlkwa{break}\hlstd{}\hlopt{;}\\
+\hllin{19\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{}\hlkwa{case\ }\hlstd{LED\textunderscore MODE\textunderscore GREEN\textunderscore ON}\hlopt{:}\\
+\hllin{20\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{}\hlslc{//红色LED灭;绿色LED亮;}\\
+\hllin{21\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{}\hlkwa{break}\hlstd{}\hlopt{;}\\
+\hllin{22\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{}\hlkwa{case\ }\hlstd{LED\textunderscore MODE\textunderscore RED\textunderscore TOGGLE}\hlopt{:}\\
+\hllin{23\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{}\hlslc{//红色LED取反;绿色LED灭;}\\
+\hllin{24\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{}\hlkwa{break}\hlstd{}\hlopt{;}\\
+\hllin{25\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{}\hlkwa{case\ }\hlstd{LED\textunderscore MODE\textunderscore GREEN\textunderscore TOGGLE}\hlopt{:}\\
+\hllin{26\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{}\hlslc{//红色LED灭;绿色LED取反;}\\
+\hllin{27\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{}\hlkwa{break}\hlstd{}\hlopt{;}\\
+\hllin{28\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{}\hlkwa{case\ }\hlstd{LED\textunderscore MODE\textunderscore BOTH\textunderscore TOGGLE}\hlopt{:}\\
+\hllin{29\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{}\hlslc{//红色LED取反;绿色LED取反;}\\
+\hllin{30\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{}\hlkwa{break}\hlstd{}\hlopt{;}\\
+\hllin{31\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlopt{\}}\\
+\hllin{32\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwd{rt\textunderscore thread\textunderscore delay}\hlstd{}\hlopt{(\ }\hlstd{RT\textunderscore TICK\textunderscore PER\textunderscore SECOND}\hlopt{/}\hlstd{}\hlnum{2\ }\hlstd{}\hlopt{);}\\
+\hllin{33\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlopt{\}}\\
+\hllin{34\ }\hlstd{}\hlopt{\}}\hlstd{}\\
+\mbox{}
+\normalfont
+\normalsize

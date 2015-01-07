@@ -1,0 +1,28 @@
+\noindent
+\ttfamily
+\hlstd{}\hllin{01\ }\hlkwb{void\ }\hlstd{}\hlkwd{EXTI15\textunderscore 10\textunderscore IRQHandler}\hlstd{}\hlopt{(}\hlstd{}\hlkwb{void}\hlstd{}\hlopt{)}\\
+\hllin{02\ }\hlstd{}\hlopt{\{}\\
+\hllin{03\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{u8\ event}\hlopt{;}\\
+\hllin{04\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ enter\ interrupt\ {*}/}\hlstd{\\
+\hllin{05\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{rt\textunderscore interrupt\textunderscore enter}\hlstd{}\hlopt{();}\hlstd{}\hlslc{//RT{-}Thread中断嵌套}\\
+\hllin{06\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{if}\hlstd{}\hlopt{(}\hlstd{SET\ }\hlopt{==\ }\hlstd{}\hlkwd{EXTI\textunderscore GetITStatus}\hlstd{}\hlopt{(}\hlstd{EXTI\textunderscore Line10}\hlopt{)}\hlstd{}\hlslc{//OPEN\textunderscore KEY\ \&}\\
+\hllin{07\ }\hlstd{}\hlstd{\ \ \ \ \ }\hlstd{}\hlopt{\textbar \textbar }\hlstd{SET\ }\hlopt{==\ }\hlstd{}\hlkwd{EXTI\textunderscore GetITStatus}\hlstd{}\hlopt{(}\hlstd{EXTI\textunderscore Line11}\hlopt{))}\hlstd{}\hlslc{//\ ALARM\textunderscore KEY}\\
+\hllin{08\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlopt{\{}\\
+\hllin{09\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{event}\hlopt{=}\hlstd{}\hlkwd{get\textunderscore key\textunderscore event}\hlstd{}\hlopt{();}\\
+\hllin{10\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwa{if}\hlstd{}\hlopt{(}\hlstd{event\ }\hlopt{==\ }\hlstd{EVENT\textunderscore ALARM}\hlopt{)}\hlstd{}\hlslc{//语音呼叫请求}\\
+\hllin{11\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{butn\textunderscore cmd}\hlopt{=}\hlstd{BUTN\textunderscore CMD\textunderscore VOICE\textunderscore RQST}\hlopt{;}\\
+\hllin{12\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwa{else\ if}\hlstd{}\hlopt{(}\hlstd{event\ }\hlopt{==\ }\hlstd{EVENT\textunderscore OPEN}\hlopt{)}\hlstd{}\hlslc{//防破坏拆除报警}\\
+\hllin{13\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{butn\textunderscore cmd}\hlopt{=}\hlstd{BUTN\textunderscore CMD\textunderscore SET\textunderscore ALARM}\hlopt{;}\\
+\hllin{14\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwa{if}\hlstd{}\hlopt{(}\hlstd{server\textunderscore mode}\hlopt{==}\hlstd{SERVER\textunderscore MODE\textunderscore NAT}\hlopt{)}\hlstd{}\hlslc{//打洞服务器}\\
+\hllin{15\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlopt{\{}\\
+\hllin{16\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{butn\textunderscore cmd}\hlopt{=}\hlstd{BUTN\textunderscore CMD\textunderscore UDP\textunderscore RQST}\hlopt{;}\hlstd{}\hlslc{//先打洞}\\
+\hllin{17\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{next\textunderscore cmd}\hlopt{=}\hlstd{butn\textunderscore cmd}\hlopt{;}\hlstd{}\hlslc{//后连接目标服务器}\\
+\hllin{18\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlopt{\}}\\
+\hllin{19\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwd{EXTI\textunderscore ClearITPendingBit}\hlstd{}\hlopt{(}\hlstd{EXTI\textunderscore Line11}\hlopt{\textbar }\hlstd{EXTI\textunderscore Line10}\hlopt{);}\\
+\hllin{20\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlopt{\}}\\
+\hllin{21\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ leave\ interrupt\ {*}/}\hlstd{\\
+\hllin{22\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{rt\textunderscore interrupt\textunderscore leave}\hlstd{}\hlopt{();}\hlstd{}\hlslc{//RT{-}Thread中断嵌套}\\
+\hllin{23\ }\hlstd{}\hlopt{\}}\hlstd{}\\
+\mbox{}
+\normalfont
+\normalsize

@@ -1,0 +1,34 @@
+\noindent
+\ttfamily
+\hlstd{}\hllin{01\ }\hlkwc{public\ }\hlstd{partial\ }\hlkwc{class\ }\hlstd{myUdpClient\ }\hlopt{:\ }\hlstd{Form}\\
+\hllin{02\ }\hlopt{\{}\\
+\hllin{03\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{//创建一个Thread实例}\\
+\hllin{04\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwc{private\ }\hlstd{Thread\ thread1}\hlopt{;}\\
+\hllin{05\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwc{private\ }\hlstd{Thread\ thread2}\hlopt{;}\\
+\hllin{06\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{//创建一个UdpClient实例}\\
+\hllin{07\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwc{private\ }\hlstd{UdpClient\ udpReceive}\hlopt{;}\\
+\hllin{08\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwc{private\ }\hlstd{byte}\hlopt{{[}{]}\ }\hlstd{receive\textunderscore bytes}\hlopt{;}\\
+\hllin{09\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwc{private\ }\hlstd{byte}\hlopt{{[}{]}\ }\hlstd{send\textunderscore bytes}\hlopt{;}\\
+\hllin{10\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwb{int\ }\hlstd{trys}\hlopt{;}\\
+\hllin{11\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{//private\ DialogResult\ result;}\\
+\hllin{12\ }\hlstd{\\
+\hllin{13\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwc{public\ }\hlstd{}\hlkwd{myUdpClient}\hlstd{}\hlopt{()}\\
+\hllin{14\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlopt{\{}\\
+\hllin{15\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwb{int\ }\hlstd{i}\hlopt{;}\\
+\hllin{16\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwd{InitializeComponent}\hlstd{}\hlopt{();}\\
+\hllin{17\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{CheckForIllegalCrossThreadCalls\ }\hlopt{=\ }\hlstd{}\hlkwa{false}\hlstd{}\hlopt{;}\\
+\hllin{18\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{comboBox2}\hlopt{.}\hlstd{SelectedIndex\ }\hlopt{=\ }\hlstd{}\hlnum{0}\hlstd{}\hlopt{;}\\
+\hllin{19\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{comboBox3}\hlopt{.}\hlstd{SelectedIndex\ }\hlopt{=\ }\hlstd{}\hlnum{0}\hlstd{}\hlopt{;}\\
+\hllin{20\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{udpReceive\ }\hlopt{=\ }\hlstd{}\hlkwa{new\ }\hlstd{}\hlkwd{UdpClient}\hlstd{}\hlopt{(}\hlstd{}\hlnum{60000}\hlstd{}\hlopt{);}\hlstd{}\hlslc{//新建UDP连接，端口60000}\\
+\hllin{21\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{thread1\ }\hlopt{=\ }\hlstd{}\hlkwa{new\ }\hlstd{}\hlkwd{Thread}\hlstd{}\hlopt{(}\hlstd{}\hlkwa{new\ }\hlstd{}\hlkwd{ThreadStart}\hlstd{}\hlopt{(}\hlstd{ReceiveMessage}\hlopt{));}\\
+\hllin{22\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{thread1}\hlopt{.}\hlstd{}\hlkwd{Start}\hlstd{}\hlopt{();}\hlstd{}\hlslc{//新建并启动UDP接收线程}\\
+\hllin{23\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{button1}\hlopt{.}\hlstd{Text\ }\hlopt{=\ }\hlstd{}\hlstr{"停止监听"}\hlstd{}\hlopt{;}\\
+\hllin{24\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{send\textunderscore bytes\ }\hlopt{=\ }\hlstd{null}\hlopt{;}\\
+\hllin{25\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{comboBox1}\hlopt{.}\hlstd{Text\ }\hlopt{=\ }\hlstd{}\hlstr{"没有待配置设备"}\hlstd{}\hlopt{;}\\
+\hllin{26\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{comboBox4}\hlopt{.}\hlstd{SelectedIndex\ }\hlopt{=\ }\hlstd{}\hlnum{0}\hlstd{}\hlopt{;}\\
+\hllin{27\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{comboBox5}\hlopt{.}\hlstd{SelectedIndex\ }\hlopt{=\ }\hlstd{}\hlnum{0\ }\hlstd{}\hlopt{;}\\
+\hllin{28\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlopt{\}}\\
+\hllin{29\ }\hlstd{}\hlopt{\}}\hlstd{}\\
+\mbox{}
+\normalfont
+\normalsize

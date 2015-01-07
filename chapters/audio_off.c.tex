@@ -1,0 +1,19 @@
+\noindent
+\ttfamily
+\hlstd{}\hllin{01\ }\hlkwb{void\ }\hlstd{}\hlkwd{audio\textunderscore off}\hlstd{}\hlopt{()}\\
+\hllin{02\ }\hlstd{}\hlopt{\{}\\
+\hllin{03\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{GPIO\textunderscore ResetBits}\hlstd{}\hlopt{(}\hlstd{GPIOB}\hlopt{,}\hlstd{AUDIO\textunderscore PA}\hlopt{);}\hlstd{}\hlslc{//关闭音频功放}\\
+\hllin{04\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{ADC\textunderscore Cmd}\hlstd{}\hlopt{(}\hlstd{ADC1}\hlopt{,\ }\hlstd{DISABLE}\hlopt{);}\hlstd{}\hlslc{//关闭ADC1}\\
+\hllin{05\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{ADC\textunderscore DMACmd}\hlstd{}\hlopt{(}\hlstd{ADC1}\hlopt{,\ }\hlstd{DISABLE}\hlopt{);}\hlstd{}\hlslc{//关闭ADC1的DMA功能}\\
+\hllin{06\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{DMA\textunderscore Cmd}\hlstd{}\hlopt{(}\hlstd{DMA1\textunderscore Channel1}\hlopt{,}\hlstd{DISABLE}\hlopt{);}\hlstd{}\hlslc{//关闭DMA1第1通道}\\
+\hllin{07\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{DMA\textunderscore Cmd}\hlstd{}\hlopt{(}\hlstd{DMA2\textunderscore Channel4}\hlopt{,}\hlstd{DISABLE}\hlopt{);}\hlstd{}\hlslc{//关闭DMA2第4通道}\\
+\hllin{08\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{//DAC\textunderscore Cmd(DAC\textunderscore Channel\textunderscore 1,DISABLE);//关闭DAC第1通道}\\
+\hllin{09\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{DAC\textunderscore Cmd}\hlstd{}\hlopt{(}\hlstd{DAC\textunderscore Channel\textunderscore 2}\hlopt{,}\hlstd{DISABLE}\hlopt{);}\hlstd{}\hlslc{//关闭DAC第2通道}\\
+\hllin{10\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{//DAC\textunderscore DMACmd(DAC\textunderscore Channel\textunderscore 1,\ DISABLE);//关闭DAC第1通道的DMA功能}\\
+\hllin{11\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{DAC\textunderscore DMACmd}\hlstd{}\hlopt{(}\hlstd{DAC\textunderscore Channel\textunderscore 2}\hlopt{,\ }\hlstd{DISABLE}\hlopt{);}\hlstd{}\hlslc{//关闭DAC第2通道的DMA功能}\\
+\hllin{12\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{TIM\textunderscore Cmd}\hlstd{}\hlopt{(}\hlstd{TIM2}\hlopt{,}\hlstd{DISABLE}\hlopt{);}\hlstd{}\hlslc{//关闭ADC触发时钟}\\
+\hllin{13\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{TIM\textunderscore Cmd}\hlstd{}\hlopt{(}\hlstd{TIM3}\hlopt{,}\hlstd{DISABLE}\hlopt{);}\hlstd{}\hlslc{//关闭DAC触发时钟}\\
+\hllin{14\ }\hlstd{}\hlopt{\}}\hlstd{}\\
+\mbox{}
+\normalfont
+\normalsize

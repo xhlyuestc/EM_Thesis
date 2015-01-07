@@ -1,0 +1,23 @@
+\noindent
+\ttfamily
+\hlstd{}\hllin{01\ }\hlkwc{private\ }\hlstd{}\hlkwb{void\ }\hlstd{}\hlkwd{button1\textunderscore Click}\hlstd{}\hlopt{(}\hlstd{object\ sender}\hlopt{,\ }\hlstd{EventArgs\ e}\hlopt{)}\\
+\hllin{02\ }\hlstd{}\hlopt{\{}\\
+\hllin{03\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{if\ }\hlstd{}\hlopt{(}\hlstd{button1}\hlopt{.}\hlstd{Text\ }\hlopt{==\ }\hlstd{}\hlstr{"开始监听"}\hlstd{}\hlopt{)}\\
+\hllin{04\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlopt{\{}\\
+\hllin{05\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{udpReceive\ }\hlopt{=\ }\hlstd{}\hlkwa{new\ }\hlstd{}\hlkwd{UdpClient}\hlstd{}\hlopt{(}\hlstd{}\hlnum{60000}\hlstd{}\hlopt{);}\\
+\hllin{06\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{thread1\ }\hlopt{=\ }\hlstd{}\hlkwa{new\ }\hlstd{}\hlkwd{Thread}\hlstd{}\hlopt{(}\hlstd{}\hlkwa{new\ }\hlstd{}\hlkwd{ThreadStart}\hlstd{}\hlopt{(}\hlstd{ReceiveMessage}\hlopt{));}\\
+\hllin{07\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{thread1}\hlopt{.}\hlstd{}\hlkwd{Start}\hlstd{}\hlopt{();}\\
+\hllin{08\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{button1}\hlopt{.}\hlstd{Text\ }\hlopt{=\ }\hlstd{}\hlstr{"停止监听"}\hlstd{}\hlopt{;}\\
+\hllin{09\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlopt{\}}\\
+\hllin{10\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{else\ if\ }\hlstd{}\hlopt{(}\hlstd{button1}\hlopt{.}\hlstd{Text\ }\hlopt{==\ }\hlstd{}\hlstr{"停止监听"}\hlstd{}\hlopt{)}\\
+\hllin{11\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlopt{\{}\\
+\hllin{12\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlslc{//关闭UDP连接}\\
+\hllin{13\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{udpReceive}\hlopt{.}\hlstd{}\hlkwd{Close}\hlstd{}\hlopt{();}\\
+\hllin{14\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlslc{//终止UDP接收线程}\\
+\hllin{15\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{thread1}\hlopt{.}\hlstd{}\hlkwd{Abort}\hlstd{}\hlopt{();}\\
+\hllin{16\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{button1}\hlopt{.}\hlstd{Text\ }\hlopt{=\ }\hlstd{}\hlstr{"开始监听"}\hlstd{}\hlopt{;}\\
+\hllin{17\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlopt{\}}\\
+\hllin{18\ }\hlstd{}\hlopt{\}}\hlstd{}\\
+\mbox{}
+\normalfont
+\normalsize

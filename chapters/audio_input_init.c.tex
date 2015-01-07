@@ -1,0 +1,34 @@
+\noindent
+\ttfamily
+\hlstd{}\hllin{01\ }\hlkwb{void\ }\hlstd{}\hlkwd{audio\textunderscore input\textunderscore init}\hlstd{}\hlopt{(}\hlstd{}\hlkwb{void}\hlstd{}\hlopt{)}\\
+\hllin{02\ }\hlstd{}\hlopt{\{}\\
+\hllin{03\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{GPIO\textunderscore InitTypeDef\ GPIO\textunderscore InitStructure}\hlopt{;}\\
+\hllin{04\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{NVIC\textunderscore InitTypeDef\ NVIC\textunderscore InitStructure}\hlopt{;}\\
+\hllin{05\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{TIM\textunderscore TimeBaseInitTypeDef}\hlstd{\ \ }\hlstd{TIM\textunderscore TimeBaseStructure}\hlopt{;}\\
+\hllin{06\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{ADC\textunderscore InitTypeDef\ ADC\textunderscore InitStructure}\hlopt{;}\\
+\hllin{07\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{DMA\textunderscore InitTypeDef\ DMA\textunderscore InitStructure}\hlopt{;}\\
+\hllin{08\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{\\
+\hllin{09\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ Enable\ peripheral\ clocks\ {*}/}\hlstd{\\
+\hllin{10\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ Enable\ DMA\ clock\ {*}/}\hlstd{\\
+\hllin{11\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{RCC\textunderscore AHBPeriphClockCmd}\hlstd{}\hlopt{(}\hlstd{RCC\textunderscore AHBPeriph\textunderscore DMA1}\hlopt{,\ }\hlstd{ENABLE}\hlopt{);}\\
+\hllin{12\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{RCC\textunderscore APB1PeriphClockCmd}\hlstd{}\hlopt{(}\hlstd{RCC\textunderscore APB1Periph\textunderscore TIM3}\hlopt{,\ }\hlstd{ENABLE}\hlopt{);}\hlstd{\ \ }\hlopt{}\\
+\hllin{13\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ Enable\ ADC1\ and\ GPIOA\ clock\ {*}/}\hlstd{\\
+\hllin{14\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{RCC\textunderscore APB2PeriphClockCmd}\hlstd{}\hlopt{(}\hlstd{RCC\textunderscore APB2Periph\textunderscore ADC1\ }\hlopt{\textbar \ }\hlstd{RCC\textunderscore APB2Periph\textunderscore GPIOA}\hlopt{,\ }\hlstd{ENABLE}\hlopt{);}\\
+\hllin{15\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{RCC\textunderscore ADCCLKConfig}\hlstd{}\hlopt{(}\hlstd{RCC\textunderscore PCLK2\textunderscore Div8}\hlopt{);}\hlstd{}\hlslc{//72M/8=9M,ADCCLK最大不超过14M}\\
+\hllin{16\ }\hlstd{\\
+\hllin{17\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ GPIO\ configuration\ {*}/}\hlstd{\\
+\hllin{18\ }}\hlstd{\ \ \ \ }\hlstd{}\hlslc{//配置IO为模拟输入模式;}\\
+\hllin{19\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ Time\ base\ configuration\ {*}/}\hlstd{\\
+\hllin{20\ }}\hlstd{\ \ \ \ }\hlstd{}\hlslc{//通过配置TIM时间基准来配置ADC采样率为8\ KSPS;}\\
+\hllin{21\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{//配置DMA1\textunderscore CH1\ NVIC优先级;}\\
+\hllin{22\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ DMA\ channel1\ configuration\ {*}/}\hlstd{\\
+\hllin{23\ }}\hlstd{\ \ \ \ }\hlstd{}\hlslc{//DMA传输相关配置;}\\
+\hllin{24\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ Enable\ DMA\ channel1\ {*}/}\hlstd{\\
+\hllin{25\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{DMA\textunderscore Cmd}\hlstd{}\hlopt{(}\hlstd{DMA1\textunderscore Channel1}\hlopt{,\ }\hlstd{ENABLE}\hlopt{);}\hlstd{\ \ \ \ \ }\hlopt{}\\
+\hllin{26\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ ADC1\ configuration\ {*}/}\hlstd{\\
+\hllin{27\ }}\hlstd{\ \ \ \ }\hlstd{}\hlslc{//ADC相关配置：时钟、转换时间、分辨率、数据对齐方式等;}\\
+\hllin{28\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{//使能定时器、ADC和DMA}\\
+\hllin{29\ }\hlstd{}\hlopt{\}}\hlstd{}\\
+\mbox{}
+\normalfont
+\normalsize

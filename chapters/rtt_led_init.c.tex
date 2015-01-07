@@ -1,0 +1,29 @@
+\noindent
+\ttfamily
+\hlstd{}\hllin{01\ }\hlkwb{int\ }\hlstd{}\hlkwd{rt\textunderscore application\textunderscore init}\hlstd{}\hlopt{()}\\
+\hllin{02\ }\hlstd{}\hlopt{\{}\\
+\hllin{03\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{rt\textunderscore thread\textunderscore t\ init\textunderscore thread}\hlopt{;}\\
+\hllin{04\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{rt\textunderscore err\textunderscore t}\hlstd{\ \ \ \ }\hlstd{result}\hlopt{;}\\
+\hllin{05\ }\hlstd{\\
+\hllin{06\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ init\ led\ thread\ {*}/}\hlstd{\\
+\hllin{07\ }}\hlstd{\ \ \ \ }\hlstd{result\ }\hlopt{=\ }\hlstd{}\hlkwd{rt\textunderscore thread\textunderscore init}\hlstd{}\hlopt{(\&}\hlstd{led\textunderscore thread}\hlopt{,}\\
+\hllin{08\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{}\hlstr{"led"}\hlstd{}\hlopt{,}\\
+\hllin{09\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{led\textunderscore thread\textunderscore entry}\hlopt{,\ }\hlstd{RT\textunderscore NULL}\hlopt{,}\\
+\hllin{10\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{}\hlopt{(}\hlstd{rt\textunderscore uint8\textunderscore t}\hlopt{{*})\&}\hlstd{led\textunderscore stack}\hlopt{{[}}\hlstd{}\hlnum{0}\hlstd{}\hlopt{{]},\ }\hlstd{}\hlkwa{sizeof}\hlstd{}\hlopt{(}\hlstd{led\textunderscore stack}\hlopt{),\ }\hlstd{}\hlnum{30}\hlstd{}\hlopt{,\ }\hlstd{}\hlnum{1}\hlstd{}\hlopt{);}\\
+\hllin{11\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{if\ }\hlstd{}\hlopt{(}\hlstd{result\ }\hlopt{==\ }\hlstd{RT\textunderscore EOK}\hlopt{)}\\
+\hllin{12\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlopt{\{}\\
+\hllin{13\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwd{rt\textunderscore thread\textunderscore startup}\hlstd{}\hlopt{(\&}\hlstd{led\textunderscore thread}\hlopt{);}\\
+\hllin{14\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlopt{\}}\\
+\hllin{15\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}创建一个用于初始化其他线程的线程"init"{*}/}\hlstd{}\hlstd{\ \ }\hlstd{\\
+\hllin{16\ }}\hlstd{\ \ \ \ }\hlstd{init\textunderscore thread\ }\hlopt{=\ }\hlstd{}\hlkwd{rt\textunderscore thread\textunderscore create}\hlstd{}\hlopt{(}\hlstd{}\hlstr{"init"}\hlstd{}\hlopt{,}\\
+\hllin{17\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{rt\textunderscore init\textunderscore thread\textunderscore entry}\hlopt{,\ }\hlstd{RT\textunderscore NULL}\hlopt{,}\\
+\hllin{18\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{}\hlnum{2048}\hlstd{}\hlopt{,\ }\hlstd{}\hlnum{8}\hlstd{}\hlopt{,\ }\hlstd{}\hlnum{20}\hlstd{}\hlopt{);}\\
+\hllin{19\ }\hlstd{\\
+\hllin{20\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{if\ }\hlstd{}\hlopt{(}\hlstd{init\textunderscore thread\ }\hlopt{!=\ }\hlstd{RT\textunderscore NULL}\hlopt{)}\\
+\hllin{21\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwd{rt\textunderscore thread\textunderscore startup}\hlstd{}\hlopt{(}\hlstd{init\textunderscore thread}\hlopt{);}\\
+\hllin{22\ }\hlstd{\\
+\hllin{23\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{return\ }\hlstd{}\hlnum{0}\hlstd{}\hlopt{;}\hlstd{\ \ \ }\hlopt{}\\
+\hllin{24\ }\hlstd{}\hlopt{\}}\hlstd{}\\
+\mbox{}
+\normalfont
+\normalsize

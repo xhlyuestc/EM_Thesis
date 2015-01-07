@@ -1,0 +1,17 @@
+\noindent
+\ttfamily
+\hlstd{\hllin{01\ }u8\ }\hlkwd{key\textunderscore get\textunderscore event}\hlstd{}\hlopt{()}\\
+\hllin{02\ }\hlstd{}\hlopt{\{}\\
+\hllin{03\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{u32\ open}\hlopt{,}\hlstd{alarm}\hlopt{;}\\
+\hllin{04\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{open}\hlopt{=}\hlstd{}\hlkwd{GPIO\textunderscore ReadInputDataBit}\hlstd{}\hlopt{(}\hlstd{GPIOB}\hlopt{,}\hlstd{OPEN\textunderscore KEY}\hlopt{);}\\
+\hllin{05\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{alarm}\hlopt{=}\hlstd{}\hlkwd{GPIO\textunderscore ReadInputDataBit}\hlstd{}\hlopt{(}\hlstd{GPIOB}\hlopt{,}\hlstd{ALARM\textunderscore KEY}\hlopt{);}\\
+\hllin{06\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{if}\hlstd{}\hlopt{(!}\hlstd{open}\hlopt{)}\\
+\hllin{07\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwa{return\ }\hlstd{EVENT\textunderscore ALARM}\hlopt{;}\hlstd{}\hlslc{//语音呼叫按键被按下}\\
+\hllin{08\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{else\ if}\hlstd{}\hlopt{(!}\hlstd{alarm}\hlopt{)}\\
+\hllin{09\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwa{return\ }\hlstd{EVENT\textunderscore OPEN}\hlopt{;}\hlstd{}\hlslc{//硬件放破坏拆除按键被断开}\\
+\hllin{10\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{else}\hlstd{}\hlslc{//以上两种情况都不是，}\\
+\hllin{11\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwa{return\ }\hlstd{EVENT\textunderscore TIMER}\hlopt{;}\hlstd{}\hlslc{//那么肯定是被定时唤醒的}\\
+\hllin{12\ }\hlstd{}\hlopt{\}}\hlstd{}\\
+\mbox{}
+\normalfont
+\normalsize

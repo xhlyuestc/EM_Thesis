@@ -1,0 +1,15 @@
+\begin{figure}[htbp]
+\centering
+\begin{minipage}[t]{0.3\textwidth}
+\includegraphics[width=\textwidth]{Chrysanthemum}
+  \caption{¾Õ»¨}%
+  \label{Chrysanthemum}%
+  \vspace{6bp}%
+\end{minipage}
+\begin{minipage}[t]{0.3\textwidth}
+\includegraphics[width=\textwidth]{Chrysanthemum}
+  \caption{¾Õ»¨}%
+  \label{Chrysanthemum}%
+  \vspace{6bp}%
+\end{minipage}
+\end{figure}

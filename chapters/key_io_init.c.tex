@@ -1,0 +1,16 @@
+\noindent
+\ttfamily
+\hlstd{}\hllin{01\ }\hlkwb{void\ }\hlstd{}\hlkwd{key\textunderscore io\textunderscore init}\hlstd{}\hlopt{(}\hlstd{}\hlkwb{void}\hlstd{}\hlopt{)}\\
+\hllin{02\ }\hlstd{}\hlopt{\{}\\
+\hllin{03\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{GPIO\textunderscore InitTypeDef\ GPIO\textunderscore InitStructure}\hlopt{;}\hlstd{\ \ \ \ }\hlopt{}\\
+\hllin{04\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{RCC\textunderscore APB2PeriphClockCmd}\hlstd{}\hlopt{(}\hlstd{RCC\textunderscore APB2Periph\textunderscore GPIOA}\hlopt{\textbar }\hlstd{RCC\textunderscore APB2Periph\textunderscore GPIOB}~\hlopt{\textbar }\hlstd{RCC\textunderscore APB2Periph\textunderscore AFIO}\hlopt{,\ }\hlstd{ENABLE}\hlopt{);}\\
+\hllin{05\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{//以下为按键输入引脚，用于判断外部事件}\\
+\hllin{06\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{GPIO\textunderscore InitStructure}\hlopt{.}\hlstd{GPIO\textunderscore Pin\ }\hlopt{=\ }\hlstd{OPEN\textunderscore KEY}\hlopt{\textbar }\hlstd{ALARM\textunderscore KEY}\hlopt{;}\hlstd{}\hlslc{//OPEN\textunderscore KEY:PB11\ \&\ ALARM\textunderscore KEY:PB10}\\
+\hllin{07\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{GPIO\textunderscore InitStructure}\hlopt{.}\hlstd{GPIO\textunderscore Speed\ }\hlopt{=\ }\hlstd{GPIO\textunderscore Speed\textunderscore 2MHz}\hlopt{;}\\
+\hllin{08\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{GPIO\textunderscore InitStructure}\hlopt{.}\hlstd{GPIO\textunderscore Mode\ }\hlopt{=\ }\hlstd{GPIO\textunderscore Mode\textunderscore IN\textunderscore FLOATING}\hlopt{;}\\
+\hllin{09\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{GPIO\textunderscore Init}\hlstd{}\hlopt{(}\hlstd{GPIOB}\hlopt{,\ \&}\hlstd{GPIO\textunderscore InitStructure}\hlopt{);}\\
+\hllin{10\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{GPIO\textunderscore EXTILineConfig}\hlstd{}\hlopt{(}\hlstd{GPIO\textunderscore PortSourceGPIOB}\hlopt{,\ }\hlstd{GPIO\textunderscore PinSource10}\hlopt{);}\\
+\hllin{11\ }\hlstd{}\hlopt{\}}\hlstd{}\\
+\mbox{}
+\normalfont
+\normalsize

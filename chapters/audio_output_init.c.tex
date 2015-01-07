@@ -1,0 +1,21 @@
+\noindent
+\ttfamily
+\hlstd{}\hllin{01\ }\hlkwb{void\ }\hlstd{}\hlkwd{audio\textunderscore output\textunderscore init}\hlstd{}\hlopt{(}\hlstd{}\hlkwb{void}\hlstd{}\hlopt{)}\\
+\hllin{02\ }\hlstd{}\hlopt{\{}\\
+\hllin{03\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{GPIO\textunderscore InitTypeDef\ GPIO\textunderscore InitStructure}\hlopt{;}\\
+\hllin{04\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{TIM\textunderscore TimeBaseInitTypeDef}\hlstd{\ \ }\hlstd{TIM\textunderscore TimeBaseStructure}\hlopt{;}\\
+\hllin{05\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{NVIC\textunderscore InitTypeDef\ NVIC\textunderscore InitStructure}\hlopt{;}\\
+\hllin{06\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{DMA\textunderscore InitTypeDef\ DMA\textunderscore InitStructure}\hlopt{;}\\
+\hllin{07\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{DAC\textunderscore InitTypeDef\ DAC\textunderscore InitStructure}\hlopt{;}\\
+\hllin{08\ }\hlstd{\\
+\hllin{09\ }}\hlstd{\ \ \ \ }\hlstd{}\hlslc{//使能相关外设的时钟：GPIO/TIM/DAC/DMA;}\\
+\hllin{10\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{//配置音频输出对应IO引脚为模拟输出模式;}\\
+\hllin{11\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{//通过配置TIM配置DAC的转换速率为8\ KSPS;}\\
+\hllin{12\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{//DAC初始化：转换时间、分辨率、数据对齐方式等;}\hlstd{\ \ \ \ }\hlslc{}\\
+\hllin{13\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{//配置DMA2\textunderscore CH4\ NVIC中断优先级;}\\
+\hllin{14\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{//为DAC配置DMA传输条件：源地址、目的地址、位宽等;}\\
+\hllin{15\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{//使能TIM、DAC、DMA;}\\
+\hllin{16\ }\hlstd{}\hlopt{\}}\hlstd{}\\
+\mbox{}
+\normalfont
+\normalsize

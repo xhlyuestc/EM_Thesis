@@ -1,0 +1,22 @@
+\noindent
+\ttfamily
+\hlstd{}\hllin{01\ }\hlkwb{void\ }\hlstd{}\hlkwd{wifi\textunderscore init}\hlstd{}\hlopt{()}\\
+\hllin{02\ }\hlstd{}\hlopt{\{}\\
+\hllin{03\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{wifi\textunderscore power\textunderscore on}\hlstd{}\hlopt{();}\hlstd{}\hlslc{//使能WIFI模块}\\
+\hllin{04\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{timerbase\textunderscore config}\hlstd{}\hlopt{();}\hlstd{}\hlslc{//SDIO接口时基配置}\\
+\hllin{05\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{sysflag}\hlopt{.}\hlstd{status}\hlopt{=}\hlstd{on\textunderscore connect}\hlopt{;}\\
+\hllin{06\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{sysflag}\hlopt{.}\hlstd{waittime}\hlopt{=}\hlstd{}\hlnum{160}\hlstd{}\hlopt{;}\\
+\hllin{07\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{load\textunderscore netcfg}\hlstd{}\hlopt{();}\hlstd{}\hlslc{//加载网络参数配置信息}\\
+\hllin{08\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{mem\textunderscore init}\hlstd{}\hlopt{();}\hlstd{}\hlslc{//LWIP内存初始化}\\
+\hllin{09\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{//初始化marvell模块驱动,包括SDIO设备枚举，加载设备固件等操作}\\
+\hllin{10\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{priv\ }\hlopt{=\ }\hlstd{}\hlkwd{init\textunderscore marvell\textunderscore driver}\hlstd{}\hlopt{();}\\
+\hllin{11\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{//扫描wifi网，结果存放在priv{-}$>$network数据域中，使用bss\textunderscore descriptor结构体描述}\\
+\hllin{12\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{lbs\textunderscore scan\textunderscore worker}\hlstd{}\hlopt{(}\hlstd{priv}\hlopt{);}\\
+\hllin{13\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{//rt\textunderscore kprintf("scanning\ finish...$\backslash$r$\backslash$n");}\\
+\hllin{14\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{psk\textunderscore out\ }\hlopt{=\ }\hlstd{}\hlkwd{mem\textunderscore malloc}\hlstd{}\hlopt{(}\hlstd{}\hlnum{32}\hlstd{}\hlopt{);}\hlstd{}\hlslc{//为结构体申请内存}\\
+\hllin{15\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{marvel\textunderscore assoc\textunderscore network}\hlstd{}\hlopt{(}\hlstd{priv}\hlopt{,}\hlstd{marvel\textunderscore ssid}\hlopt{,}\hlstd{marvel\textunderscore key}\hlopt{,}\hlstd{marvel\textunderscore mode}\hlopt{);}\hlstd{}\hlslc{//关联WIFI网络}\\
+\hllin{16\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{mem\textunderscore free}\hlstd{}\hlopt{(}\hlstd{psk\textunderscore out}\hlopt{);}\hlstd{}\hlslc{//释放内存}\\
+\hllin{17\ }\hlstd{}\hlopt{\}}\hlstd{}\\
+\mbox{}
+\normalfont
+\normalsize
