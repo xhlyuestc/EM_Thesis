@@ -1,0 +1,110 @@
+\noindent
+\ttfamily
+\hlstd{}\hllin{01\ }\hlkwa{public\ class\ }\hlstd{SQLHelper}\\
+\hllin{02\ }\hlopt{\{}\\
+\hllin{03\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{//新建SQLHelper类（支持基本QL语句）}\\
+\hllin{04\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{private\ }\hlstd{SqlConnection\ sqlCon\ }\hlopt{=\ }\hlstd{}\hlkwa{null}\hlstd{}\hlopt{;}\\
+\hllin{05\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{private\ }\hlstd{SqlCommand\ cmd\ }\hlopt{=\ }\hlstd{}\hlkwa{null}\hlstd{}\hlopt{;}\\
+\hllin{06\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{private\ }\hlstd{SqlDataReader\ sdr\ }\hlopt{=\ }\hlstd{}\hlkwa{null}\hlstd{}\hlopt{;}\\
+\hllin{07\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{public\ }\hlstd{}\hlkwd{SQLHelper}\hlstd{}\hlopt{()}\\
+\hllin{08\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlopt{\{}\\
+\hllin{09\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{sqlCon\ }\hlopt{=\ }\hlstd{}\hlkwa{new\ }\hlstd{}\hlkwd{SqlConnection}\hlstd{}\hlopt{(}\hlstd{ConfigurationManager\ }\hlopt{.}\hlstd{ConnectionStrings}\hlopt{{[}}\hlstd{}\hlstr{"ConnStr"}\hlstd{}\hlopt{{]}.}\hlstd{ConnectionString}\hlopt{);}\\
+\hllin{10\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlopt{\}}\\
+\hllin{11\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ $<$summary$>$}\\
+\hllin{12\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ 打开数据库连接}\\
+\hllin{13\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ $<$/summary$>$}\\
+\hllin{14\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ $<$returns$>$$<$/returns$>$}\\
+\hllin{15\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{private\ }\hlstd{SqlConnection\ }\hlkwd{GetCon}\hlstd{}\hlopt{()}\\
+\hllin{16\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlopt{\{}\\
+\hllin{17\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwa{if\ }\hlstd{}\hlopt{(}\hlstd{sqlCon}\hlopt{.}\hlstd{State}\hlopt{==}\hlstd{ConnectionState}\hlopt{.}\hlstd{Closed}\hlopt{)}\\
+\hllin{18\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlopt{\{}\\
+\hllin{19\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{sqlCon}\hlopt{.}\hlstd{}\hlkwd{Open}\hlstd{}\hlopt{();}\\
+\hllin{20\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlopt{\}}\\
+\hllin{21\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwa{return\ }\hlstd{sqlCon}\hlopt{;}\\
+\hllin{22\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlopt{\}}\\
+\hllin{23\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ $<$summary$>$}\\
+\hllin{24\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ 执行不带参数的增删改sql语句或存储过程}\\
+\hllin{25\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ $<$/summary$>$}\\
+\hllin{26\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ $<$param\ name="cmdText"$>$增删改sql语句或存储过程$<$/param$>$}\\
+\hllin{27\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ $<$param\ name="ct"$>$命令类型$<$/param$>$}\\
+\hllin{28\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ $<$returns$>$$<$/returns$>$}\\
+\hllin{29\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{public\ }\hlstd{}\hlkwb{int\ }\hlstd{}\hlkwd{ExecuteNonQuery}\hlstd{}\hlopt{(}\hlstd{}\hlkwb{string\ }\hlstd{cmdText}\hlopt{,\ }\hlstd{CommandType\ ct}\hlopt{)}\\
+\hllin{30\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlopt{\{}\\
+\hllin{31\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwb{int\ }\hlstd{rex}\hlopt{;}\\
+\hllin{32\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwa{try}\\
+\hllin{33\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlopt{\{}\\
+\hllin{34\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{SqlCommand\ sqlcom\ }\hlopt{=\ }\hlstd{}\hlkwa{new\ }\hlstd{}\hlkwd{SqlCommand}\hlstd{}\hlopt{(}\hlstd{cmdText}\hlopt{,}\hlstd{}\hlkwd{GetCon}\hlstd{}\hlopt{());}\\
+\hllin{35\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{sqlcom}\hlopt{.}\hlstd{CommandType\ }\hlopt{=\ }\hlstd{ct}\hlopt{;}\\
+\hllin{36\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{rex\ }\hlopt{=}\hlstd{sqlcom}\hlopt{.}\hlstd{}\hlkwd{ExecuteNonQuery}\hlstd{}\hlopt{();}\\
+\hllin{37\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlopt{\}}\\
+\hllin{38\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwa{catch\ }\hlstd{}\hlopt{(}\hlstd{Exception\ ex}\hlopt{)}\\
+\hllin{39\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlopt{\{}\\
+\hllin{40\ }\hlstd{\\
+\hllin{41\ }}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{}\hlkwa{throw\ }\hlstd{ex}\hlopt{;}\\
+\hllin{42\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlopt{\}}\\
+\hllin{43\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwa{finally}\\
+\hllin{44\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlopt{\{}\\
+\hllin{45\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{}\hlkwa{if\ }\hlstd{}\hlopt{(}\hlstd{sqlCon}\hlopt{.}\hlstd{State}\hlopt{==}\hlstd{ConnectionState}\hlopt{.}\hlstd{Open}\hlopt{)}\\
+\hllin{46\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{}\hlopt{\{}\\
+\hllin{47\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{sqlCon}\hlopt{.}\hlstd{}\hlkwd{Close}\hlstd{}\hlopt{();}\\
+\hllin{48\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{}\hlopt{\}}\\
+\hllin{49\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlopt{\}}\\
+\hllin{50\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwa{return\ }\hlstd{rex}\hlopt{;}\\
+\hllin{51\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlopt{\}}\\
+\hllin{52\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ $<$summary$>$}\\
+\hllin{53\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///}\hlstd{\ \ }\hlslc{执行带参数的增删改SQL语句或存储过程}\\
+\hllin{54\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ $<$/summary$>$}\\
+\hllin{55\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ $<$param\ name="cmdText"$>$增删改SQL语句或存储过程$<$/param$>$}\\
+\hllin{56\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ $<$param\ name="ct"$>$命令类型$<$/param$>$}\\
+\hllin{57\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ $<$returns$>$$<$/returns$>$}\\
+\hllin{58\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{public\ }\hlstd{}\hlkwb{int\ }\hlstd{}\hlkwd{ExecuteNonQuery}\hlstd{}\hlopt{(}\hlstd{}\hlkwb{string\ }\hlstd{cmdText}\hlopt{,\ }\hlstd{SqlParameter}\hlopt{{[}{]}\ }\hlstd{paras}\hlopt{,\ }\hlstd{CommandType\ ct}\hlopt{)}\\
+\hllin{59\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlopt{\{}\\
+\hllin{60\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwb{int\ }\hlstd{res}\hlopt{;}\\
+\hllin{61\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwa{using\ }\hlstd{}\hlopt{(}\hlstd{cmd\ }\hlopt{=\ }\hlstd{}\hlkwa{new\ }\hlstd{}\hlkwd{SqlCommand}\hlstd{}\hlopt{(}\hlstd{cmdText}\hlopt{,\ }\hlstd{}\hlkwd{GetCon}\hlstd{}\hlopt{()))}\\
+\hllin{62\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlopt{\{}\\
+\hllin{63\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{cmd}\hlopt{.}\hlstd{CommandType\ }\hlopt{=\ }\hlstd{ct}\hlopt{;}\\
+\hllin{64\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{cmd}\hlopt{.}\hlstd{Parameters}\hlopt{.}\hlstd{}\hlkwd{AddRange}\hlstd{}\hlopt{(}\hlstd{paras}\hlopt{);}\\
+\hllin{65\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{res\ }\hlopt{=\ }\hlstd{cmd}\hlopt{.}\hlstd{}\hlkwd{ExecuteNonQuery}\hlstd{}\hlopt{();}\\
+\hllin{66\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlopt{\}}\\
+\hllin{67\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwa{return\ }\hlstd{res}\hlopt{;}\\
+\hllin{68\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlopt{\}}\\
+\hllin{69\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ $<$summary$>$}\\
+\hllin{70\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///}\hlstd{\ \ }\hlslc{执行带参数的查询SQL语句或存储过程}\\
+\hllin{71\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ $<$/summary$>$}\\
+\hllin{72\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ $<$param\ name="cmdText"$>$查询SQL语句或存储过程$<$/param$>$}\\
+\hllin{73\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ $<$param\ name="paras"$>$参数集合$<$/param$>$}\\
+\hllin{74\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ $<$param\ name="ct"$>$命令类型$<$/param$>$}\\
+\hllin{75\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ $<$returns$>$$<$/returns$>$}\\
+\hllin{76\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{public\ }\hlstd{DataTable\ }\hlkwd{ExecuteQuery}\hlstd{}\hlopt{(}\hlstd{}\hlkwb{string\ }\hlstd{cmdText}\hlopt{,\ }\hlstd{SqlParameter}\hlopt{{[}{]}\ }\hlstd{paras}\hlopt{,\ }\hlstd{CommandType\ ct}\hlopt{)}\\
+\hllin{77\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlopt{\{}\\
+\hllin{78\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{DataTable\ dt\ }\hlopt{=\ }\hlstd{}\hlkwa{new\ }\hlstd{}\hlkwd{DataTable}\hlstd{}\hlopt{();}\\
+\hllin{79\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{cmd\ }\hlopt{=\ }\hlstd{}\hlkwa{new\ }\hlstd{}\hlkwd{SqlCommand}\hlstd{}\hlopt{(}\hlstd{cmdText}\hlopt{,}\hlstd{}\hlkwd{GetCon}\hlstd{}\hlopt{());}\\
+\hllin{80\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{cmd}\hlopt{.}\hlstd{CommandType\ }\hlopt{=\ }\hlstd{ct}\hlopt{;}\\
+\hllin{81\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{cmd}\hlopt{.}\hlstd{Parameters}\hlopt{.}\hlstd{}\hlkwd{AddRange}\hlstd{}\hlopt{(}\hlstd{paras}\hlopt{);}\\
+\hllin{82\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwa{using\ }\hlstd{}\hlopt{(}\hlstd{sdr\ }\hlopt{=\ }\hlstd{cmd}\hlopt{.}\hlstd{}\hlkwd{ExecuteReader}\hlstd{}\hlopt{(}\hlstd{CommandBehavior}\hlopt{.}\hlstd{CloseConnection}\hlopt{))}\\
+\hllin{83\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlopt{\{}\\
+\hllin{84\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{dt}\hlopt{.}\hlstd{}\hlkwd{Load}\hlstd{}\hlopt{(}\hlstd{sdr}\hlopt{);}\\
+\hllin{85\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlopt{\}}\\
+\hllin{86\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwa{return\ }\hlstd{dt}\hlopt{;}\\
+\hllin{87\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlopt{\}}\\
+\hllin{88\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ $<$summary$>$}\\
+\hllin{89\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ 执行不带参数的查询SQL语句或存储过程}\\
+\hllin{90\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ $<$/summary$>$}\\
+\hllin{91\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ $<$param\ name="cmdText"$>$查询SQL语句或存储过程$<$/param$>$}\\
+\hllin{92\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ $<$param\ name="ct"$>$命令类型$<$/param$>$}\\
+\hllin{93\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ $<$returns$>$$<$/returns$>$}\\
+\hllin{94\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{public\ }\hlstd{DataTable\ }\hlkwd{ExecuteQuery}\hlstd{}\hlopt{(}\hlstd{}\hlkwb{string\ }\hlstd{cmdText}\hlopt{,\ }\hlstd{CommandType\ ct}\hlopt{)}\\
+\hllin{95\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlopt{\{}\\
+\hllin{96\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{DataTable\ dt\ }\hlopt{=\ }\hlstd{}\hlkwa{new\ }\hlstd{}\hlkwd{DataTable}\hlstd{}\hlopt{();}\\
+\hllin{97\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{cmd\ }\hlopt{=\ }\hlstd{}\hlkwa{new\ }\hlstd{}\hlkwd{SqlCommand}\hlstd{}\hlopt{(}\hlstd{cmdText}\hlopt{,\ }\hlstd{}\hlkwd{GetCon}\hlstd{}\hlopt{());}\\
+\hllin{98\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{cmd}\hlopt{.}\hlstd{CommandType\ }\hlopt{=\ }\hlstd{ct}\hlopt{;}\\
+\hllin{99\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwa{using\ }\hlstd{}\hlopt{(}\hlstd{sdr\ }\hlopt{=\ }\hlstd{cmd}\hlopt{.}\hlstd{}\hlkwd{ExecuteReader}\hlstd{}\hlopt{(}\hlstd{CommandBehavior}\hlopt{.}\hlstd{CloseConnection}\hlopt{))}\\
+\hllin{100\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlopt{\{}\\
+\hllin{101\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{dt}\hlopt{.}\hlstd{}\hlkwd{Load}\hlstd{}\hlopt{(}\hlstd{sdr}\hlopt{);}\\
+\hllin{102\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlopt{\}}\\
+\hllin{103\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwa{return\ }\hlstd{dt}\hlopt{;}\\
+\hllin{104\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlopt{\}}\\
+\hllin{105\ }\hlstd{}\hlopt{\}}\hlstd{}\\
+\mbox{}
+\normalfont
+\normalsize
