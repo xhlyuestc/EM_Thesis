@@ -1,0 +1,705 @@
+\noindent
+\ttfamily
+\hlstd{}\hllin{01\ }\hlcom{/{*}}\\
+\hllin{02\ }\hlcom{\ {*}\ File}\hlstd{\ \ \ \ \ \ }\hlcom{:\ thread.c}\\
+\hllin{03\ }\hlcom{\ {*}\ This\ file\ is\ part\ of\ RT{-}Thread\ RTOS}\\
+\hllin{04\ }\hlcom{\ {*}\ COPYRIGHT\ (C)\ 2006\ {-}\ 2012,\ RT{-}Thread\ Development\ Team}\\
+\hllin{05\ }\hlcom{\ {*}}\\
+\hllin{06\ }\hlcom{\ {*}\ The\ license\ and\ distribution\ terms\ for\ this\ file\ may\ be}\\
+\hllin{07\ }\hlcom{\ {*}\ found\ in\ the\ file\ LICENSE\ in\ this\ distribution\ or\ at}\\
+\hllin{08\ }\hlcom{\ {*}\ http://www.rt{-}thread.org/license/LICENSE}\\
+\hllin{09\ }\hlcom{\ {*}}\\
+\hllin{10\ }\hlcom{\ {*}\ Change\ Logs:}\\
+\hllin{11\ }\hlcom{\ {*}\ Date}\hlstd{\ \ \ \ \ \ \ \ \ \ \ }\hlcom{Author}\hlstd{\ \ \ \ \ \ \ }\hlcom{Notes}\\
+\hllin{12\ }\hlcom{\ {*}\ 2006{-}03{-}28}\hlstd{\ \ \ \ \ }\hlcom{Bernard}\hlstd{\ \ \ \ \ \ }\hlcom{first\ version}\\
+\hllin{13\ }\hlcom{\ {*}\ 2006{-}04{-}29}\hlstd{\ \ \ \ \ }\hlcom{Bernard}\hlstd{\ \ \ \ \ \ }\hlcom{implement\ thread\ timer}\\
+\hllin{14\ }\hlcom{\ {*}\ 2006{-}04{-}30}\hlstd{\ \ \ \ \ }\hlcom{Bernard}\hlstd{\ \ \ \ \ \ }\hlcom{added\ THREAD\textunderscore DEBUG}\\
+\hllin{15\ }\hlcom{\ {*}\ 2006{-}05{-}27}\hlstd{\ \ \ \ \ }\hlcom{Bernard}\hlstd{\ \ \ \ \ \ }\hlcom{fixed\ the\ rt\textunderscore thread\textunderscore yield\ bug}\\
+\hllin{16\ }\hlcom{\ {*}\ 2006{-}06{-}03}\hlstd{\ \ \ \ \ }\hlcom{Bernard}\hlstd{\ \ \ \ \ \ }\hlcom{fixed\ the\ thread\ timer\ init\ bug}\\
+\hllin{17\ }\hlcom{\ {*}\ 2006{-}08{-}10}\hlstd{\ \ \ \ \ }\hlcom{Bernard}\hlstd{\ \ \ \ \ \ }\hlcom{fixed\ the\ timer\ bug\ in\ thread\textunderscore sleep}\\
+\hllin{18\ }\hlcom{\ {*}\ 2006{-}09{-}03}\hlstd{\ \ \ \ \ }\hlcom{Bernard}\hlstd{\ \ \ \ \ \ }\hlcom{changed\ rt\textunderscore timer\textunderscore delete\ to\ rt\textunderscore timer\textunderscore detach}\\
+\hllin{19\ }\hlcom{\ {*}\ 2006{-}09{-}03}\hlstd{\ \ \ \ \ }\hlcom{Bernard}\hlstd{\ \ \ \ \ \ }\hlcom{implement\ rt\textunderscore thread\textunderscore detach}\\
+\hllin{20\ }\hlcom{\ {*}\ 2008{-}02{-}16}\hlstd{\ \ \ \ \ }\hlcom{Bernard}\hlstd{\ \ \ \ \ \ }\hlcom{fixed\ the\ rt\textunderscore thread\textunderscore timeout\ bug}\\
+\hllin{21\ }\hlcom{\ {*}\ 2010{-}03{-}21}\hlstd{\ \ \ \ \ }\hlcom{Bernard}\hlstd{\ \ \ \ \ \ }\hlcom{change\ the\ errno\ of\ rt\textunderscore thread\textunderscore delay/sleep\ to}\\
+\hllin{22\ }\hlcom{\ {*}}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlcom{RT\textunderscore EOK.}\\
+\hllin{23\ }\hlcom{\ {*}\ 2010{-}11{-}10}\hlstd{\ \ \ \ \ }\hlcom{Bernard}\hlstd{\ \ \ \ \ \ }\hlcom{add\ cleanup\ callback\ function\ in\ thread\ exit.}\\
+\hllin{24\ }\hlcom{\ {*}\ 2011{-}09{-}01}\hlstd{\ \ \ \ \ }\hlcom{Bernard}\hlstd{\ \ \ \ \ \ }\hlcom{fixed\ rt\textunderscore thread\textunderscore exit\ issue\ when\ the\ current}\\
+\hllin{25\ }\hlcom{\ {*}}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlcom{thread\ preempted,\ which\ reported\ by\ Jiaxing\ Lee.}\\
+\hllin{26\ }\hlcom{\ {*}\ 2011{-}09{-}08}\hlstd{\ \ \ \ \ }\hlcom{Bernard}\hlstd{\ \ \ \ \ \ }\hlcom{fixed\ the\ scheduling\ issue\ in\ rt\textunderscore thread\textunderscore startup.}\\
+\hllin{27\ }\hlcom{\ {*}\ 2012{-}12{-}29}\hlstd{\ \ \ \ \ }\hlcom{Bernard}\hlstd{\ \ \ \ \ \ }\hlcom{fixed\ compiling\ warning.}\\
+\hllin{28\ }\hlcom{\ {*}/}\hlstd{}\\
+\hllin{29\ }\\
+\hllin{30\ }\hlppc{\#include\ $<$rtthread.h$>$}\\
+\hllin{31\ }\hlstd{}\hlppc{\#include\ $<$rthw.h$>$}\\
+\hllin{32\ }\hlstd{}\\
+\hllin{33\ }\hlkwc{extern\ }\hlstd{rt\textunderscore list\textunderscore t\ rt\textunderscore thread\textunderscore priority\textunderscore table}\hlopt{{[}}\hlstd{RT\textunderscore THREAD\textunderscore PRIORITY\textunderscore MAX}\hlopt{{]};}\\
+\hllin{34\ }\hlstd{}\hlkwc{extern\ }\hlstd{}\hlkwb{struct\ }\hlstd{rt\textunderscore thread\ }\hlopt{{*}}\hlstd{rt\textunderscore current\textunderscore thread}\hlopt{;}\\
+\hllin{35\ }\hlstd{}\hlkwc{extern\ }\hlstd{rt\textunderscore list\textunderscore t\ rt\textunderscore thread\textunderscore defunct}\hlopt{;}\\
+\hllin{36\ }\hlstd{}\\
+\hllin{37\ }\hlkwb{static\ void\ }\hlstd{}\hlkwd{rt\textunderscore thread\textunderscore exit}\hlstd{}\hlopt{(}\hlstd{}\hlkwb{void}\hlstd{}\hlopt{)}\\
+\hllin{38\ }\hlstd{}\hlopt{\{}\\
+\hllin{39\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwb{struct\ }\hlstd{rt\textunderscore thread\ }\hlopt{{*}}\hlstd{thread}\hlopt{;}\\
+\hllin{40\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwc{register\ }\hlstd{rt\textunderscore base\textunderscore t\ level}\hlopt{;}\\
+\hllin{41\ }\hlstd{\\
+\hllin{42\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ get\ current\ thread\ {*}/}\hlstd{\\
+\hllin{43\ }}\hlstd{\ \ \ \ }\hlstd{thread\ }\hlopt{=\ }\hlstd{rt\textunderscore current\textunderscore thread}\hlopt{;}\\
+\hllin{44\ }\hlstd{\\
+\hllin{45\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ disable\ interrupt\ {*}/}\hlstd{\\
+\hllin{46\ }}\hlstd{\ \ \ \ }\hlstd{level\ }\hlopt{=\ }\hlstd{}\hlkwd{rt\textunderscore hw\textunderscore interrupt\textunderscore disable}\hlstd{}\hlopt{();}\\
+\hllin{47\ }\hlstd{\\
+\hllin{48\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ remove\ from\ schedule\ {*}/}\hlstd{\\
+\hllin{49\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{rt\textunderscore schedule\textunderscore remove\textunderscore thread}\hlstd{}\hlopt{(}\hlstd{thread}\hlopt{);}\\
+\hllin{50\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ change\ stat\ {*}/}\hlstd{\\
+\hllin{51\ }}\hlstd{\ \ \ \ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{stat\ }\hlopt{=\ }\hlstd{RT\textunderscore THREAD\textunderscore CLOSE}\hlopt{;}\\
+\hllin{52\ }\hlstd{\\
+\hllin{53\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ remove\ it\ from\ timer\ list\ {*}/}\hlstd{\\
+\hllin{54\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{rt\textunderscore list\textunderscore remove}\hlstd{}\hlopt{(\&(}\hlstd{thread}\hlopt{{-}$>$}\hlstd{thread\textunderscore timer}\hlopt{.}\hlstd{list}\hlopt{));}\\
+\hllin{55\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{rt\textunderscore object\textunderscore detach}\hlstd{}\hlopt{((}\hlstd{rt\textunderscore object\textunderscore t}\hlopt{)\&(}\hlstd{thread}\hlopt{{-}$>$}\hlstd{thread\textunderscore timer}\hlopt{));}\\
+\hllin{56\ }\hlstd{\\
+\hllin{57\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{if\ }\hlstd{}\hlopt{((}\hlstd{}\hlkwd{rt\textunderscore object\textunderscore is\textunderscore systemobject}\hlstd{}\hlopt{((}\hlstd{rt\textunderscore object\textunderscore t}\hlopt{)}\hlstd{thread}\hlopt{)\ ==\ }\hlstd{RT\textunderscore TRUE}\hlopt{)\ \&\&}\\
+\hllin{58\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{cleanup\ }\hlopt{==\ }\hlstd{RT\textunderscore NULL}\hlopt{)}\\
+\hllin{59\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlopt{\{}\\
+\hllin{60\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwd{rt\textunderscore object\textunderscore detach}\hlstd{}\hlopt{((}\hlstd{rt\textunderscore object\textunderscore t}\hlopt{)}\hlstd{thread}\hlopt{);}\\
+\hllin{61\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlopt{\}}\\
+\hllin{62\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{else}\\
+\hllin{63\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlopt{\{}\\
+\hllin{64\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlcom{/{*}\ insert\ to\ defunct\ thread\ list\ {*}/}\hlstd{\\
+\hllin{65\ }}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwd{rt\textunderscore list\textunderscore insert\textunderscore after}\hlstd{}\hlopt{(\&}\hlstd{rt\textunderscore thread\textunderscore defunct}\hlopt{,\ \&(}\hlstd{thread}\hlopt{{-}$>$}\hlstd{tlist}\hlopt{));}\\
+\hllin{66\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlopt{\}}\\
+\hllin{67\ }\hlstd{\\
+\hllin{68\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ enable\ interrupt\ {*}/}\hlstd{\\
+\hllin{69\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{rt\textunderscore hw\textunderscore interrupt\textunderscore enable}\hlstd{}\hlopt{(}\hlstd{level}\hlopt{);}\\
+\hllin{70\ }\hlstd{\\
+\hllin{71\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ switch\ to\ next\ task\ {*}/}\hlstd{\\
+\hllin{72\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{rt\textunderscore schedule}\hlstd{}\hlopt{();}\\
+\hllin{73\ }\hlstd{}\hlopt{\}}\\
+\hllin{74\ }\hlstd{}\\
+\hllin{75\ }\hlkwb{static\ }\hlstd{rt\textunderscore err\textunderscore t\ }\hlkwd{\textunderscore rt\textunderscore thread\textunderscore init}\hlstd{}\hlopt{(}\hlstd{}\hlkwb{struct\ }\hlstd{rt\textunderscore thread\ }\hlopt{{*}}\hlstd{thread}\hlopt{,}\\
+\hllin{76\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{}\hlkwb{const\ char}\hlstd{\ \ \ \ \ \ \ }\hlkwb{}\hlstd{}\hlopt{{*}}\hlstd{name}\hlopt{,}\\
+\hllin{77\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{}\hlkwb{void\ }\hlstd{}\hlopt{({*}}\hlstd{entry}\hlopt{)(}\hlstd{}\hlkwb{void\ }\hlstd{}\hlopt{{*}}\hlstd{parameter}\hlopt{),}\\
+\hllin{78\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{}\hlkwb{void}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ }\hlkwb{}\hlstd{}\hlopt{{*}}\hlstd{parameter}\hlopt{,}\\
+\hllin{79\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{}\hlkwb{void}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ }\hlkwb{}\hlstd{}\hlopt{{*}}\hlstd{stack\textunderscore start}\hlopt{,}\\
+\hllin{80\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{rt\textunderscore uint32\textunderscore t}\hlstd{\ \ \ \ \ \ \ }\hlstd{stack\textunderscore size}\hlopt{,}\\
+\hllin{81\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{rt\textunderscore uint8\textunderscore t}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{priority}\hlopt{,}\\
+\hllin{82\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{rt\textunderscore uint32\textunderscore t}\hlstd{\ \ \ \ \ \ \ }\hlstd{tick}\hlopt{)}\\
+\hllin{83\ }\hlstd{}\hlopt{\{}\\
+\hllin{84\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ init\ thread\ list\ {*}/}\hlstd{\\
+\hllin{85\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{rt\textunderscore list\textunderscore init}\hlstd{}\hlopt{(\&(}\hlstd{thread}\hlopt{{-}$>$}\hlstd{tlist}\hlopt{));}\\
+\hllin{86\ }\hlstd{\\
+\hllin{87\ }}\hlstd{\ \ \ \ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{entry\ }\hlopt{=\ (}\hlstd{}\hlkwb{void\ }\hlstd{}\hlopt{{*})}\hlstd{entry}\hlopt{;}\\
+\hllin{88\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{parameter\ }\hlopt{=\ }\hlstd{parameter}\hlopt{;}\\
+\hllin{89\ }\hlstd{\\
+\hllin{90\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ stack\ init\ {*}/}\hlstd{\\
+\hllin{91\ }}\hlstd{\ \ \ \ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{stack\textunderscore addr\ }\hlopt{=\ }\hlstd{stack\textunderscore start}\hlopt{;}\\
+\hllin{92\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{stack\textunderscore size\ }\hlopt{=\ (}\hlstd{rt\textunderscore uint16\textunderscore t}\hlopt{)}\hlstd{stack\textunderscore size}\hlopt{;}\\
+\hllin{93\ }\hlstd{\\
+\hllin{94\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ init\ thread\ stack\ {*}/}\hlstd{\\
+\hllin{95\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{rt\textunderscore memset}\hlstd{}\hlopt{(}\hlstd{thread}\hlopt{{-}$>$}\hlstd{stack\textunderscore addr}\hlopt{,\ }\hlstd{}\hlstr{'\#'}\hlstd{}\hlopt{,\ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{stack\textunderscore size}\hlopt{);}\\
+\hllin{96\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{sp\ }\hlopt{=\ (}\hlstd{}\hlkwb{void\ }\hlstd{}\hlopt{{*})}\hlstd{}\hlkwd{rt\textunderscore hw\textunderscore stack\textunderscore init}\hlstd{}\hlopt{(}\hlstd{thread}\hlopt{{-}$>$}\hlstd{entry}\hlopt{,\ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{parameter}\hlopt{,}\\
+\hllin{97\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{}\hlopt{(}\hlstd{}\hlkwb{void\ }\hlstd{}\hlopt{{*})((}\hlstd{}\hlkwb{char\ }\hlstd{}\hlopt{{*})}\hlstd{thread}\hlopt{{-}$>$}\hlstd{stack\textunderscore addr\ }\hlopt{+\ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{stack\textunderscore size\ }\hlopt{{-}\ }\hlstd{}\hlnum{4}\hlstd{}\hlopt{),}\\
+\hllin{98\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{}\hlopt{(}\hlstd{}\hlkwb{void\ }\hlstd{}\hlopt{{*})}\hlstd{rt\textunderscore thread\textunderscore exit}\hlopt{);}\\
+\hllin{99\ }\hlstd{\\
+\hllin{100\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ priority\ init\ {*}/}\hlstd{\\
+\hllin{101\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{RT\textunderscore ASSERT}\hlstd{}\hlopt{(}\hlstd{priority\ }\hlopt{$<$\ }\hlstd{RT\textunderscore THREAD\textunderscore PRIORITY\textunderscore MAX}\hlopt{);}\\
+\hllin{102\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{init\textunderscore priority}\hlstd{\ \ \ \ }\hlstd{}\hlopt{=\ }\hlstd{priority}\hlopt{;}\\
+\hllin{103\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{current\textunderscore priority\ }\hlopt{=\ }\hlstd{priority}\hlopt{;}\\
+\hllin{104\ }\hlstd{\\
+\hllin{105\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ tick\ init\ {*}/}\hlstd{\\
+\hllin{106\ }}\hlstd{\ \ \ \ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{init\textunderscore tick}\hlstd{\ \ \ \ \ \ }\hlstd{}\hlopt{=\ }\hlstd{tick}\hlopt{;}\\
+\hllin{107\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{remaining\textunderscore tick\ }\hlopt{=\ }\hlstd{tick}\hlopt{;}\\
+\hllin{108\ }\hlstd{\\
+\hllin{109\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ error\ and\ flags\ {*}/}\hlstd{\\
+\hllin{110\ }}\hlstd{\ \ \ \ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{error\ }\hlopt{=\ }\hlstd{RT\textunderscore EOK}\hlopt{;}\\
+\hllin{111\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{stat}\hlstd{\ \ }\hlstd{}\hlopt{=\ }\hlstd{RT\textunderscore THREAD\textunderscore INIT}\hlopt{;}\\
+\hllin{112\ }\hlstd{\\
+\hllin{113\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ initialize\ cleanup\ function\ and\ user\ data\ {*}/}\hlstd{\\
+\hllin{114\ }}\hlstd{\ \ \ \ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{cleanup}\hlstd{\ \ \ }\hlstd{}\hlopt{=\ }\hlstd{}\hlnum{0}\hlstd{}\hlopt{;}\\
+\hllin{115\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{user\textunderscore data\ }\hlopt{=\ }\hlstd{}\hlnum{0}\hlstd{}\hlopt{;}\\
+\hllin{116\ }\hlstd{\\
+\hllin{117\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ init\ thread\ timer\ {*}/}\hlstd{\\
+\hllin{118\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{rt\textunderscore timer\textunderscore init}\hlstd{}\hlopt{(\&(}\hlstd{thread}\hlopt{{-}$>$}\hlstd{thread\textunderscore timer}\hlopt{),}\\
+\hllin{119\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{name}\hlopt{,}\\
+\hllin{120\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{rt\textunderscore thread\textunderscore timeout}\hlopt{,}\\
+\hllin{121\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{thread}\hlopt{,}\\
+\hllin{122\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{}\hlnum{0}\hlstd{}\hlopt{,}\\
+\hllin{123\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{RT\textunderscore TIMER\textunderscore FLAG\textunderscore ONE\textunderscore SHOT}\hlopt{);}\\
+\hllin{124\ }\hlstd{\\
+\hllin{125\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{return\ }\hlstd{RT\textunderscore EOK}\hlopt{;}\\
+\hllin{126\ }\hlstd{}\hlopt{\}}\\
+\hllin{127\ }\hlstd{}\\
+\hllin{128\ }\hlcom{/{*}{*}}\\
+\hllin{129\ }\hlcom{\ {*}\ @addtogroup\ Thread}\\
+\hllin{130\ }\hlcom{\ {*}/}\hlstd{}\\
+\hllin{131\ }\\
+\hllin{132\ }\hlcom{/{*}@\{{*}/}\hlstd{}\\
+\hllin{133\ }\\
+\hllin{134\ }\hlcom{/{*}{*}}\\
+\hllin{135\ }\hlcom{\ {*}\ This\ function\ will\ initialize\ a\ thread,\ normally\ it's\ used\ to\ initialize\ a}\\
+\hllin{136\ }\hlcom{\ {*}\ static\ thread\ object.}\\
+\hllin{137\ }\hlcom{\ {*}}\\
+\hllin{138\ }\hlcom{\ {*}\ @param\ thread\ the\ static\ thread\ object}\\
+\hllin{139\ }\hlcom{\ {*}\ @param\ name\ the\ name\ of\ thread,\ which\ shall\ be\ unique}\\
+\hllin{140\ }\hlcom{\ {*}\ @param\ entry\ the\ entry\ function\ of\ thread}\\
+\hllin{141\ }\hlcom{\ {*}\ @param\ parameter\ the\ parameter\ of\ thread\ enter\ function}\\
+\hllin{142\ }\hlcom{\ {*}\ @param\ stack\textunderscore start\ the\ start\ address\ of\ thread\ stack}\\
+\hllin{143\ }\hlcom{\ {*}\ @param\ stack\textunderscore size\ the\ size\ of\ thread\ stack}\\
+\hllin{144\ }\hlcom{\ {*}\ @param\ priority\ the\ priority\ of\ thread}\\
+\hllin{145\ }\hlcom{\ {*}\ @param\ tick\ the\ time\ slice\ if\ there\ are\ same\ priority\ thread}\\
+\hllin{146\ }\hlcom{\ {*}}\\
+\hllin{147\ }\hlcom{\ {*}\ @return\ the\ operation\ status,\ RT\textunderscore EOK\ on\ OK,\ {-}RT\textunderscore ERROR\ on\ error}\\
+\hllin{148\ }\hlcom{\ {*}/}\hlstd{\\
+\hllin{149\ }rt\textunderscore err\textunderscore t\ }\hlkwd{rt\textunderscore thread\textunderscore init}\hlstd{}\hlopt{(}\hlstd{}\hlkwb{struct\ }\hlstd{rt\textunderscore thread\ }\hlopt{{*}}\hlstd{thread}\hlopt{,}\\
+\hllin{150\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{}\hlkwb{const\ char}\hlstd{\ \ \ \ \ \ \ }\hlkwb{}\hlstd{}\hlopt{{*}}\hlstd{name}\hlopt{,}\\
+\hllin{151\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{}\hlkwb{void\ }\hlstd{}\hlopt{({*}}\hlstd{entry}\hlopt{)(}\hlstd{}\hlkwb{void\ }\hlstd{}\hlopt{{*}}\hlstd{parameter}\hlopt{),}\\
+\hllin{152\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{}\hlkwb{void}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ }\hlkwb{}\hlstd{}\hlopt{{*}}\hlstd{parameter}\hlopt{,}\\
+\hllin{153\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{}\hlkwb{void}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ }\hlkwb{}\hlstd{}\hlopt{{*}}\hlstd{stack\textunderscore start}\hlopt{,}\\
+\hllin{154\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{rt\textunderscore uint32\textunderscore t}\hlstd{\ \ \ \ \ \ \ }\hlstd{stack\textunderscore size}\hlopt{,}\\
+\hllin{155\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{rt\textunderscore uint8\textunderscore t}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{priority}\hlopt{,}\\
+\hllin{156\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{rt\textunderscore uint32\textunderscore t}\hlstd{\ \ \ \ \ \ \ }\hlstd{tick}\hlopt{)}\\
+\hllin{157\ }\hlstd{}\hlopt{\{}\\
+\hllin{158\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ thread\ check\ {*}/}\hlstd{\\
+\hllin{159\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{RT\textunderscore ASSERT}\hlstd{}\hlopt{(}\hlstd{thread\ }\hlopt{!=\ }\hlstd{RT\textunderscore NULL}\hlopt{);}\\
+\hllin{160\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{RT\textunderscore ASSERT}\hlstd{}\hlopt{(}\hlstd{stack\textunderscore start\ }\hlopt{!=\ }\hlstd{RT\textunderscore NULL}\hlopt{);}\\
+\hllin{161\ }\hlstd{\\
+\hllin{162\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ init\ thread\ object\ {*}/}\hlstd{\\
+\hllin{163\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{rt\textunderscore object\textunderscore init}\hlstd{}\hlopt{((}\hlstd{rt\textunderscore object\textunderscore t}\hlopt{)}\hlstd{thread}\hlopt{,\ }\hlstd{RT\textunderscore Object\textunderscore Class\textunderscore Thread}\hlopt{,\ }\hlstd{name}\hlopt{);}\\
+\hllin{164\ }\hlstd{\\
+\hllin{165\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{return\ }\hlstd{}\hlkwd{\textunderscore rt\textunderscore thread\textunderscore init}\hlstd{}\hlopt{(}\hlstd{thread}\hlopt{,}\\
+\hllin{166\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{name}\hlopt{,}\\
+\hllin{167\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{entry}\hlopt{,}\\
+\hllin{168\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{parameter}\hlopt{,}\\
+\hllin{169\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{stack\textunderscore start}\hlopt{,}\\
+\hllin{170\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{stack\textunderscore size}\hlopt{,}\\
+\hllin{171\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{priority}\hlopt{,}\\
+\hllin{172\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{tick}\hlopt{);}\\
+\hllin{173\ }\hlstd{}\hlopt{\}}\\
+\hllin{174\ }\hlstd{}\hlkwd{RTM\textunderscore EXPORT}\hlstd{}\hlopt{(}\hlstd{rt\textunderscore thread\textunderscore init}\hlopt{);}\\
+\hllin{175\ }\hlstd{}\\
+\hllin{176\ }\hlcom{/{*}{*}}\\
+\hllin{177\ }\hlcom{\ {*}\ This\ function\ will\ return\ self\ thread\ object}\\
+\hllin{178\ }\hlcom{\ {*}}\\
+\hllin{179\ }\hlcom{\ {*}\ @return\ the\ self\ thread\ object}\\
+\hllin{180\ }\hlcom{\ {*}/}\hlstd{\\
+\hllin{181\ }rt\textunderscore thread\textunderscore t\ }\hlkwd{rt\textunderscore thread\textunderscore self}\hlstd{}\hlopt{(}\hlstd{}\hlkwb{void}\hlstd{}\hlopt{)}\\
+\hllin{182\ }\hlstd{}\hlopt{\{}\\
+\hllin{183\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{return\ }\hlstd{rt\textunderscore current\textunderscore thread}\hlopt{;}\\
+\hllin{184\ }\hlstd{}\hlopt{\}}\\
+\hllin{185\ }\hlstd{}\hlkwd{RTM\textunderscore EXPORT}\hlstd{}\hlopt{(}\hlstd{rt\textunderscore thread\textunderscore self}\hlopt{);}\\
+\hllin{186\ }\hlstd{}\\
+\hllin{187\ }\hlcom{/{*}{*}}\\
+\hllin{188\ }\hlcom{\ {*}\ This\ function\ will\ start\ a\ thread\ and\ put\ it\ to\ system\ ready\ queue}\\
+\hllin{189\ }\hlcom{\ {*}}\\
+\hllin{190\ }\hlcom{\ {*}\ @param\ thread\ the\ thread\ to\ be\ started}\\
+\hllin{191\ }\hlcom{\ {*}}\\
+\hllin{192\ }\hlcom{\ {*}\ @return\ the\ operation\ status,\ RT\textunderscore EOK\ on\ OK,\ {-}RT\textunderscore ERROR\ on\ error}\\
+\hllin{193\ }\hlcom{\ {*}/}\hlstd{\\
+\hllin{194\ }rt\textunderscore err\textunderscore t\ }\hlkwd{rt\textunderscore thread\textunderscore startup}\hlstd{}\hlopt{(}\hlstd{rt\textunderscore thread\textunderscore t\ thread}\hlopt{)}\\
+\hllin{195\ }\hlstd{}\hlopt{\{}\\
+\hllin{196\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ thread\ check\ {*}/}\hlstd{\\
+\hllin{197\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{RT\textunderscore ASSERT}\hlstd{}\hlopt{(}\hlstd{thread\ }\hlopt{!=\ }\hlstd{RT\textunderscore NULL}\hlopt{);}\\
+\hllin{198\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{RT\textunderscore ASSERT}\hlstd{}\hlopt{(}\hlstd{thread}\hlopt{{-}$>$}\hlstd{stat\ }\hlopt{==\ }\hlstd{RT\textunderscore THREAD\textunderscore INIT}\hlopt{);}\\
+\hllin{199\ }\hlstd{\\
+\hllin{200\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ set\ current\ priority\ to\ init\ priority\ {*}/}\hlstd{\\
+\hllin{201\ }}\hlstd{\ \ \ \ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{current\textunderscore priority\ }\hlopt{=\ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{init\textunderscore priority}\hlopt{;}\\
+\hllin{202\ }\hlstd{\\
+\hllin{203\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ calculate\ priority\ attribute\ {*}/}\hlstd{}\\
+\hllin{204\ }\hlppc{\#if\ RT\textunderscore THREAD\textunderscore PRIORITY\textunderscore MAX\ $>$\ 32}\\
+\hllin{205\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{number}\hlstd{\ \ \ \ \ \ }\hlstd{}\hlopt{=\ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{current\textunderscore priority\ }\hlopt{$>$$>$\ }\hlstd{}\hlnum{3}\hlstd{}\hlopt{;}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlopt{}\hlstd{}\hlcom{/{*}\ 5bit\ {*}/}\hlstd{\\
+\hllin{206\ }}\hlstd{\ \ \ \ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{number\textunderscore mask\ }\hlopt{=\ }\hlstd{}\hlnum{1L\ }\hlstd{}\hlopt{$<$$<$\ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{number}\hlopt{;}\\
+\hllin{207\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{high\textunderscore mask}\hlstd{\ \ \ }\hlstd{}\hlopt{=\ }\hlstd{}\hlnum{1L\ }\hlstd{}\hlopt{$<$$<$\ (}\hlstd{thread}\hlopt{{-}$>$}\hlstd{current\textunderscore priority\ }\hlopt{\&\ }\hlstd{}\hlnum{0x07}\hlstd{}\hlopt{);}\hlstd{\ \ }\hlopt{}\hlstd{}\hlcom{/{*}\ 3bit\ {*}/}\hlstd{}\\
+\hllin{208\ }\hlppc{\#else}\\
+\hllin{209\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{number\textunderscore mask\ }\hlopt{=\ }\hlstd{}\hlnum{1L\ }\hlstd{}\hlopt{$<$$<$\ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{current\textunderscore priority}\hlopt{;}\\
+\hllin{210\ }\hlstd{}\hlppc{\#endif}\\
+\hllin{211\ }\hlstd{\\
+\hllin{212\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{RT\textunderscore DEBUG\textunderscore LOG}\hlstd{}\hlopt{(}\hlstd{RT\textunderscore DEBUG\textunderscore THREAD}\hlopt{,\ (}\hlstd{}\hlstr{"startup\ a\ thread:\%s\ with\ priority:\%d}\hlesc{$\backslash$n}\hlstr{"}\hlstd{}\hlopt{,}\\
+\hllin{213\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{name}\hlopt{,\ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{init\textunderscore priority}\hlopt{));}\\
+\hllin{214\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ change\ thread\ stat\ {*}/}\hlstd{\\
+\hllin{215\ }}\hlstd{\ \ \ \ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{stat\ }\hlopt{=\ }\hlstd{RT\textunderscore THREAD\textunderscore SUSPEND}\hlopt{;}\\
+\hllin{216\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ then\ resume\ it\ {*}/}\hlstd{\\
+\hllin{217\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{rt\textunderscore thread\textunderscore resume}\hlstd{}\hlopt{(}\hlstd{thread}\hlopt{);}\\
+\hllin{218\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{if\ }\hlstd{}\hlopt{(}\hlstd{}\hlkwd{rt\textunderscore thread\textunderscore self}\hlstd{}\hlopt{()\ !=\ }\hlstd{RT\textunderscore NULL}\hlopt{)}\\
+\hllin{219\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlopt{\{}\\
+\hllin{220\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlcom{/{*}\ do\ a\ scheduling\ {*}/}\hlstd{\\
+\hllin{221\ }}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwd{rt\textunderscore schedule}\hlstd{}\hlopt{();}\\
+\hllin{222\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlopt{\}}\\
+\hllin{223\ }\hlstd{\\
+\hllin{224\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{return\ }\hlstd{RT\textunderscore EOK}\hlopt{;}\\
+\hllin{225\ }\hlstd{}\hlopt{\}}\\
+\hllin{226\ }\hlstd{}\hlkwd{RTM\textunderscore EXPORT}\hlstd{}\hlopt{(}\hlstd{rt\textunderscore thread\textunderscore startup}\hlopt{);}\\
+\hllin{227\ }\hlstd{}\\
+\hllin{228\ }\hlcom{/{*}{*}}\\
+\hllin{229\ }\hlcom{\ {*}\ This\ function\ will\ detach\ a\ thread.\ The\ thread\ object\ will\ be\ removed\ from}\\
+\hllin{230\ }\hlcom{\ {*}\ thread\ queue\ and\ detached/deleted\ from\ system\ object\ management.}\\
+\hllin{231\ }\hlcom{\ {*}}\\
+\hllin{232\ }\hlcom{\ {*}\ @param\ thread\ the\ thread\ to\ be\ deleted}\\
+\hllin{233\ }\hlcom{\ {*}}\\
+\hllin{234\ }\hlcom{\ {*}\ @return\ the\ operation\ status,\ RT\textunderscore EOK\ on\ OK,\ {-}RT\textunderscore ERROR\ on\ error}\\
+\hllin{235\ }\hlcom{\ {*}/}\hlstd{\\
+\hllin{236\ }rt\textunderscore err\textunderscore t\ }\hlkwd{rt\textunderscore thread\textunderscore detach}\hlstd{}\hlopt{(}\hlstd{rt\textunderscore thread\textunderscore t\ thread}\hlopt{)}\\
+\hllin{237\ }\hlstd{}\hlopt{\{}\\
+\hllin{238\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{rt\textunderscore base\textunderscore t\ lock}\hlopt{;}\\
+\hllin{239\ }\hlstd{\\
+\hllin{240\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ thread\ check\ {*}/}\hlstd{\\
+\hllin{241\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{RT\textunderscore ASSERT}\hlstd{}\hlopt{(}\hlstd{thread\ }\hlopt{!=\ }\hlstd{RT\textunderscore NULL}\hlopt{);}\\
+\hllin{242\ }\hlstd{\\
+\hllin{243\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ remove\ from\ schedule\ {*}/}\hlstd{\\
+\hllin{244\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{rt\textunderscore schedule\textunderscore remove\textunderscore thread}\hlstd{}\hlopt{(}\hlstd{thread}\hlopt{);}\\
+\hllin{245\ }\hlstd{\\
+\hllin{246\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ release\ thread\ timer\ {*}/}\hlstd{\\
+\hllin{247\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{rt\textunderscore timer\textunderscore detach}\hlstd{}\hlopt{(\&(}\hlstd{thread}\hlopt{{-}$>$}\hlstd{thread\textunderscore timer}\hlopt{));}\\
+\hllin{248\ }\hlstd{\\
+\hllin{249\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ change\ stat\ {*}/}\hlstd{\\
+\hllin{250\ }}\hlstd{\ \ \ \ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{stat\ }\hlopt{=\ }\hlstd{RT\textunderscore THREAD\textunderscore CLOSE}\hlopt{;}\\
+\hllin{251\ }\hlstd{\\
+\hllin{252\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ detach\ object\ {*}/}\hlstd{\\
+\hllin{253\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{rt\textunderscore object\textunderscore detach}\hlstd{}\hlopt{((}\hlstd{rt\textunderscore object\textunderscore t}\hlopt{)}\hlstd{thread}\hlopt{);}\\
+\hllin{254\ }\hlstd{\\
+\hllin{255\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{if\ }\hlstd{}\hlopt{(}\hlstd{thread}\hlopt{{-}$>$}\hlstd{cleanup\ }\hlopt{!=\ }\hlstd{RT\textunderscore NULL}\hlopt{)}\\
+\hllin{256\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlopt{\{}\\
+\hllin{257\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlcom{/{*}\ disable\ interrupt\ {*}/}\hlstd{\\
+\hllin{258\ }}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{lock\ }\hlopt{=\ }\hlstd{}\hlkwd{rt\textunderscore hw\textunderscore interrupt\textunderscore disable}\hlstd{}\hlopt{();}\\
+\hllin{259\ }\hlstd{\\
+\hllin{260\ }}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlcom{/{*}\ insert\ to\ defunct\ thread\ list\ {*}/}\hlstd{\\
+\hllin{261\ }}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwd{rt\textunderscore list\textunderscore insert\textunderscore after}\hlstd{}\hlopt{(\&}\hlstd{rt\textunderscore thread\textunderscore defunct}\hlopt{,\ \&(}\hlstd{thread}\hlopt{{-}$>$}\hlstd{tlist}\hlopt{));}\\
+\hllin{262\ }\hlstd{\\
+\hllin{263\ }}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlcom{/{*}\ enable\ interrupt\ {*}/}\hlstd{\\
+\hllin{264\ }}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwd{rt\textunderscore hw\textunderscore interrupt\textunderscore enable}\hlstd{}\hlopt{(}\hlstd{lock}\hlopt{);}\\
+\hllin{265\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlopt{\}}\\
+\hllin{266\ }\hlstd{\\
+\hllin{267\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{return\ }\hlstd{RT\textunderscore EOK}\hlopt{;}\\
+\hllin{268\ }\hlstd{}\hlopt{\}}\\
+\hllin{269\ }\hlstd{}\hlkwd{RTM\textunderscore EXPORT}\hlstd{}\hlopt{(}\hlstd{rt\textunderscore thread\textunderscore detach}\hlopt{);}\\
+\hllin{270\ }\hlstd{}\\
+\hllin{271\ }\\
+\hllin{272\ }\hlppc{\#ifdef\ RT\textunderscore USING\textunderscore HEAP}\\
+\hllin{273\ }\hlstd{}\hlcom{/{*}{*}}\\
+\hllin{274\ }\hlcom{\ {*}\ This\ function\ will\ create\ a\ thread\ object\ and\ allocate\ thread\ object\ memory}\\
+\hllin{275\ }\hlcom{\ {*}\ and\ stack.}\\
+\hllin{276\ }\hlcom{\ {*}}\\
+\hllin{277\ }\hlcom{\ {*}\ @param\ name\ the\ name\ of\ thread,\ which\ shall\ be\ unique}\\
+\hllin{278\ }\hlcom{\ {*}\ @param\ entry\ the\ entry\ function\ of\ thread}\\
+\hllin{279\ }\hlcom{\ {*}\ @param\ parameter\ the\ parameter\ of\ thread\ enter\ function}\\
+\hllin{280\ }\hlcom{\ {*}\ @param\ stack\textunderscore size\ the\ size\ of\ thread\ stack}\\
+\hllin{281\ }\hlcom{\ {*}\ @param\ priority\ the\ priority\ of\ thread}\\
+\hllin{282\ }\hlcom{\ {*}\ @param\ tick\ the\ time\ slice\ if\ there\ are\ same\ priority\ thread}\\
+\hllin{283\ }\hlcom{\ {*}}\\
+\hllin{284\ }\hlcom{\ {*}\ @return\ the\ created\ thread\ object}\\
+\hllin{285\ }\hlcom{\ {*}/}\hlstd{\\
+\hllin{286\ }rt\textunderscore thread\textunderscore t\ }\hlkwd{rt\textunderscore thread\textunderscore create}\hlstd{}\hlopt{(}\hlstd{}\hlkwb{const\ char\ }\hlstd{}\hlopt{{*}}\hlstd{name}\hlopt{,}\\
+\hllin{287\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{}\hlkwb{void\ }\hlstd{}\hlopt{({*}}\hlstd{entry}\hlopt{)(}\hlstd{}\hlkwb{void\ }\hlstd{}\hlopt{{*}}\hlstd{parameter}\hlopt{),}\\
+\hllin{288\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{}\hlkwb{void}\hlstd{\ \ \ \ \ \ \ }\hlkwb{}\hlstd{}\hlopt{{*}}\hlstd{parameter}\hlopt{,}\\
+\hllin{289\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{rt\textunderscore uint32\textunderscore t\ stack\textunderscore size}\hlopt{,}\\
+\hllin{290\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{rt\textunderscore uint8\textunderscore t}\hlstd{\ \ }\hlstd{priority}\hlopt{,}\\
+\hllin{291\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{rt\textunderscore uint32\textunderscore t\ tick}\hlopt{)}\\
+\hllin{292\ }\hlstd{}\hlopt{\{}\\
+\hllin{293\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwb{struct\ }\hlstd{rt\textunderscore thread\ }\hlopt{{*}}\hlstd{thread}\hlopt{;}\\
+\hllin{294\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwb{void\ }\hlstd{}\hlopt{{*}}\hlstd{stack\textunderscore start}\hlopt{;}\\
+\hllin{295\ }\hlstd{\\
+\hllin{296\ }}\hlstd{\ \ \ \ }\hlstd{thread\ }\hlopt{=\ (}\hlstd{}\hlkwb{struct\ }\hlstd{rt\textunderscore thread\ }\hlopt{{*})}\hlstd{}\hlkwd{rt\textunderscore object\textunderscore allocate}\hlstd{}\hlopt{(}\hlstd{RT\textunderscore Object\textunderscore Class\textunderscore Thread}\hlopt{,}\\
+\hllin{297\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{name}\hlopt{);}\\
+\hllin{298\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{if\ }\hlstd{}\hlopt{(}\hlstd{thread\ }\hlopt{==\ }\hlstd{RT\textunderscore NULL}\hlopt{)}\\
+\hllin{299\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwa{return\ }\hlstd{RT\textunderscore NULL}\hlopt{;}\\
+\hllin{300\ }\hlstd{\\
+\hllin{301\ }}\hlstd{\ \ \ \ }\hlstd{stack\textunderscore start\ }\hlopt{=\ (}\hlstd{}\hlkwb{void\ }\hlstd{}\hlopt{{*})}\hlstd{}\hlkwd{rt\textunderscore malloc}\hlstd{}\hlopt{(}\hlstd{stack\textunderscore size}\hlopt{);}\\
+\hllin{302\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{if\ }\hlstd{}\hlopt{(}\hlstd{stack\textunderscore start\ }\hlopt{==\ }\hlstd{RT\textunderscore NULL}\hlopt{)}\\
+\hllin{303\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlopt{\{}\\
+\hllin{304\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlcom{/{*}\ allocate\ stack\ failure\ {*}/}\hlstd{\\
+\hllin{305\ }}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwd{rt\textunderscore object\textunderscore delete}\hlstd{}\hlopt{((}\hlstd{rt\textunderscore object\textunderscore t}\hlopt{)}\hlstd{thread}\hlopt{);}\\
+\hllin{306\ }\hlstd{\\
+\hllin{307\ }}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwa{return\ }\hlstd{RT\textunderscore NULL}\hlopt{;}\\
+\hllin{308\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlopt{\}}\\
+\hllin{309\ }\hlstd{\\
+\hllin{310\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{\textunderscore rt\textunderscore thread\textunderscore init}\hlstd{}\hlopt{(}\hlstd{thread}\hlopt{,}\\
+\hllin{311\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{name}\hlopt{,}\\
+\hllin{312\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{entry}\hlopt{,}\\
+\hllin{313\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{parameter}\hlopt{,}\\
+\hllin{314\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{stack\textunderscore start}\hlopt{,}\\
+\hllin{315\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{stack\textunderscore size}\hlopt{,}\\
+\hllin{316\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{priority}\hlopt{,}\\
+\hllin{317\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{tick}\hlopt{);}\\
+\hllin{318\ }\hlstd{\\
+\hllin{319\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{return\ }\hlstd{thread}\hlopt{;}\\
+\hllin{320\ }\hlstd{}\hlopt{\}}\\
+\hllin{321\ }\hlstd{}\hlkwd{RTM\textunderscore EXPORT}\hlstd{}\hlopt{(}\hlstd{rt\textunderscore thread\textunderscore create}\hlopt{);}\\
+\hllin{322\ }\hlstd{}\\
+\hllin{323\ }\hlcom{/{*}{*}}\\
+\hllin{324\ }\hlcom{\ {*}\ This\ function\ will\ delete\ a\ thread.\ The\ thread\ object\ will\ be\ removed\ from}\\
+\hllin{325\ }\hlcom{\ {*}\ thread\ queue\ and\ detached/deleted\ from\ system\ object\ management.}\\
+\hllin{326\ }\hlcom{\ {*}}\\
+\hllin{327\ }\hlcom{\ {*}\ @param\ thread\ the\ thread\ to\ be\ deleted}\\
+\hllin{328\ }\hlcom{\ {*}}\\
+\hllin{329\ }\hlcom{\ {*}\ @return\ the\ operation\ status,\ RT\textunderscore EOK\ on\ OK,\ {-}RT\textunderscore ERROR\ on\ error}\\
+\hllin{330\ }\hlcom{\ {*}/}\hlstd{\\
+\hllin{331\ }rt\textunderscore err\textunderscore t\ }\hlkwd{rt\textunderscore thread\textunderscore delete}\hlstd{}\hlopt{(}\hlstd{rt\textunderscore thread\textunderscore t\ thread}\hlopt{)}\\
+\hllin{332\ }\hlstd{}\hlopt{\{}\\
+\hllin{333\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{rt\textunderscore base\textunderscore t\ lock}\hlopt{;}\\
+\hllin{334\ }\hlstd{\\
+\hllin{335\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ thread\ check\ {*}/}\hlstd{\\
+\hllin{336\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{RT\textunderscore ASSERT}\hlstd{}\hlopt{(}\hlstd{thread\ }\hlopt{!=\ }\hlstd{RT\textunderscore NULL}\hlopt{);}\\
+\hllin{337\ }\hlstd{\\
+\hllin{338\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ remove\ from\ schedule\ {*}/}\hlstd{\\
+\hllin{339\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{rt\textunderscore schedule\textunderscore remove\textunderscore thread}\hlstd{}\hlopt{(}\hlstd{thread}\hlopt{);}\\
+\hllin{340\ }\hlstd{\\
+\hllin{341\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ release\ thread\ timer\ {*}/}\hlstd{\\
+\hllin{342\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{rt\textunderscore timer\textunderscore detach}\hlstd{}\hlopt{(\&(}\hlstd{thread}\hlopt{{-}$>$}\hlstd{thread\textunderscore timer}\hlopt{));}\\
+\hllin{343\ }\hlstd{\\
+\hllin{344\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ change\ stat\ {*}/}\hlstd{\\
+\hllin{345\ }}\hlstd{\ \ \ \ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{stat\ }\hlopt{=\ }\hlstd{RT\textunderscore THREAD\textunderscore CLOSE}\hlopt{;}\\
+\hllin{346\ }\hlstd{\\
+\hllin{347\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ disable\ interrupt\ {*}/}\hlstd{\\
+\hllin{348\ }}\hlstd{\ \ \ \ }\hlstd{lock\ }\hlopt{=\ }\hlstd{}\hlkwd{rt\textunderscore hw\textunderscore interrupt\textunderscore disable}\hlstd{}\hlopt{();}\\
+\hllin{349\ }\hlstd{\\
+\hllin{350\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ insert\ to\ defunct\ thread\ list\ {*}/}\hlstd{\\
+\hllin{351\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{rt\textunderscore list\textunderscore insert\textunderscore after}\hlstd{}\hlopt{(\&}\hlstd{rt\textunderscore thread\textunderscore defunct}\hlopt{,\ \&(}\hlstd{thread}\hlopt{{-}$>$}\hlstd{tlist}\hlopt{));}\\
+\hllin{352\ }\hlstd{\\
+\hllin{353\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ enable\ interrupt\ {*}/}\hlstd{\\
+\hllin{354\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{rt\textunderscore hw\textunderscore interrupt\textunderscore enable}\hlstd{}\hlopt{(}\hlstd{lock}\hlopt{);}\\
+\hllin{355\ }\hlstd{\\
+\hllin{356\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{return\ }\hlstd{RT\textunderscore EOK}\hlopt{;}\\
+\hllin{357\ }\hlstd{}\hlopt{\}}\\
+\hllin{358\ }\hlstd{}\hlkwd{RTM\textunderscore EXPORT}\hlstd{}\hlopt{(}\hlstd{rt\textunderscore thread\textunderscore delete}\hlopt{);}\\
+\hllin{359\ }\hlstd{}\hlppc{\#endif}\\
+\hllin{360\ }\hlstd{}\\
+\hllin{361\ }\hlcom{/{*}{*}}\\
+\hllin{362\ }\hlcom{\ {*}\ This\ function\ will\ let\ current\ thread\ yield\ processor,\ and\ scheduler\ will}\\
+\hllin{363\ }\hlcom{\ {*}\ choose\ a\ highest\ thread\ to\ run.\ After\ yield\ processor,\ the\ current\ thread}\\
+\hllin{364\ }\hlcom{\ {*}\ is\ still\ in\ READY\ state.}\\
+\hllin{365\ }\hlcom{\ {*}}\\
+\hllin{366\ }\hlcom{\ {*}\ @return\ RT\textunderscore EOK}\\
+\hllin{367\ }\hlcom{\ {*}/}\hlstd{\\
+\hllin{368\ }rt\textunderscore err\textunderscore t\ }\hlkwd{rt\textunderscore thread\textunderscore yield}\hlstd{}\hlopt{(}\hlstd{}\hlkwb{void}\hlstd{}\hlopt{)}\\
+\hllin{369\ }\hlstd{}\hlopt{\{}\\
+\hllin{370\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwc{register\ }\hlstd{rt\textunderscore base\textunderscore t\ level}\hlopt{;}\\
+\hllin{371\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwb{struct\ }\hlstd{rt\textunderscore thread\ }\hlopt{{*}}\hlstd{thread}\hlopt{;}\\
+\hllin{372\ }\hlstd{\\
+\hllin{373\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ disable\ interrupt\ {*}/}\hlstd{\\
+\hllin{374\ }}\hlstd{\ \ \ \ }\hlstd{level\ }\hlopt{=\ }\hlstd{}\hlkwd{rt\textunderscore hw\textunderscore interrupt\textunderscore disable}\hlstd{}\hlopt{();}\\
+\hllin{375\ }\hlstd{\\
+\hllin{376\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ set\ to\ current\ thread\ {*}/}\hlstd{\\
+\hllin{377\ }}\hlstd{\ \ \ \ }\hlstd{thread\ }\hlopt{=\ }\hlstd{rt\textunderscore current\textunderscore thread}\hlopt{;}\\
+\hllin{378\ }\hlstd{\\
+\hllin{379\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ if\ the\ thread\ stat\ is\ READY\ and\ on\ ready\ queue\ list\ {*}/}\hlstd{\\
+\hllin{380\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{if\ }\hlstd{}\hlopt{(}\hlstd{thread}\hlopt{{-}$>$}\hlstd{stat\ }\hlopt{==\ }\hlstd{RT\textunderscore THREAD\textunderscore READY\ }\hlopt{\&\&}\\
+\hllin{381\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{tlist}\hlopt{.}\hlstd{next\ }\hlopt{!=\ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{tlist}\hlopt{.}\hlstd{prev}\hlopt{)}\\
+\hllin{382\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlopt{\{}\\
+\hllin{383\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlcom{/{*}\ remove\ thread\ from\ thread\ list\ {*}/}\hlstd{\\
+\hllin{384\ }}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwd{rt\textunderscore list\textunderscore remove}\hlstd{}\hlopt{(\&(}\hlstd{thread}\hlopt{{-}$>$}\hlstd{tlist}\hlopt{));}\\
+\hllin{385\ }\hlstd{\\
+\hllin{386\ }}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlcom{/{*}\ put\ thread\ to\ end\ of\ ready\ queue\ {*}/}\hlstd{\\
+\hllin{387\ }}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwd{rt\textunderscore list\textunderscore insert\textunderscore before}\hlstd{}\hlopt{(\&(}\hlstd{rt\textunderscore thread\textunderscore priority\textunderscore table}\hlopt{{[}}\hlstd{thread}\hlopt{{-}$>$}\hlstd{current\textunderscore priority}\hlopt{{]}),}\\
+\hllin{388\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{}\hlopt{\&(}\hlstd{thread}\hlopt{{-}$>$}\hlstd{tlist}\hlopt{));}\\
+\hllin{389\ }\hlstd{\\
+\hllin{390\ }}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlcom{/{*}\ enable\ interrupt\ {*}/}\hlstd{\\
+\hllin{391\ }}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwd{rt\textunderscore hw\textunderscore interrupt\textunderscore enable}\hlstd{}\hlopt{(}\hlstd{level}\hlopt{);}\\
+\hllin{392\ }\hlstd{\\
+\hllin{393\ }}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwd{rt\textunderscore schedule}\hlstd{}\hlopt{();}\\
+\hllin{394\ }\hlstd{\\
+\hllin{395\ }}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwa{return\ }\hlstd{RT\textunderscore EOK}\hlopt{;}\\
+\hllin{396\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlopt{\}}\\
+\hllin{397\ }\hlstd{\\
+\hllin{398\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ enable\ interrupt\ {*}/}\hlstd{\\
+\hllin{399\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{rt\textunderscore hw\textunderscore interrupt\textunderscore enable}\hlstd{}\hlopt{(}\hlstd{level}\hlopt{);}\\
+\hllin{400\ }\hlstd{\\
+\hllin{401\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{return\ }\hlstd{RT\textunderscore EOK}\hlopt{;}\\
+\hllin{402\ }\hlstd{}\hlopt{\}}\\
+\hllin{403\ }\hlstd{}\hlkwd{RTM\textunderscore EXPORT}\hlstd{}\hlopt{(}\hlstd{rt\textunderscore thread\textunderscore yield}\hlopt{);}\\
+\hllin{404\ }\hlstd{}\\
+\hllin{405\ }\hlcom{/{*}{*}}\\
+\hllin{406\ }\hlcom{\ {*}\ This\ function\ will\ let\ current\ thread\ sleep\ for\ some\ ticks.}\\
+\hllin{407\ }\hlcom{\ {*}}\\
+\hllin{408\ }\hlcom{\ {*}\ @param\ tick\ the\ sleep\ ticks}\\
+\hllin{409\ }\hlcom{\ {*}}\\
+\hllin{410\ }\hlcom{\ {*}\ @return\ RT\textunderscore EOK}\\
+\hllin{411\ }\hlcom{\ {*}/}\hlstd{\\
+\hllin{412\ }rt\textunderscore err\textunderscore t\ }\hlkwd{rt\textunderscore thread\textunderscore sleep}\hlstd{}\hlopt{(}\hlstd{rt\textunderscore tick\textunderscore t\ tick}\hlopt{)}\\
+\hllin{413\ }\hlstd{}\hlopt{\{}\\
+\hllin{414\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwc{register\ }\hlstd{rt\textunderscore base\textunderscore t\ temp}\hlopt{;}\\
+\hllin{415\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwb{struct\ }\hlstd{rt\textunderscore thread\ }\hlopt{{*}}\hlstd{thread}\hlopt{;}\\
+\hllin{416\ }\hlstd{\\
+\hllin{417\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ disable\ interrupt\ {*}/}\hlstd{\\
+\hllin{418\ }}\hlstd{\ \ \ \ }\hlstd{temp\ }\hlopt{=\ }\hlstd{}\hlkwd{rt\textunderscore hw\textunderscore interrupt\textunderscore disable}\hlstd{}\hlopt{();}\\
+\hllin{419\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ set\ to\ current\ thread\ {*}/}\hlstd{\\
+\hllin{420\ }}\hlstd{\ \ \ \ }\hlstd{thread\ }\hlopt{=\ }\hlstd{rt\textunderscore current\textunderscore thread}\hlopt{;}\\
+\hllin{421\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{RT\textunderscore ASSERT}\hlstd{}\hlopt{(}\hlstd{thread\ }\hlopt{!=\ }\hlstd{RT\textunderscore NULL}\hlopt{);}\\
+\hllin{422\ }\hlstd{\\
+\hllin{423\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ suspend\ thread\ {*}/}\hlstd{\\
+\hllin{424\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{rt\textunderscore thread\textunderscore suspend}\hlstd{}\hlopt{(}\hlstd{thread}\hlopt{);}\\
+\hllin{425\ }\hlstd{\\
+\hllin{426\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ reset\ the\ timeout\ of\ thread\ timer\ and\ start\ it\ {*}/}\hlstd{\\
+\hllin{427\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{rt\textunderscore timer\textunderscore control}\hlstd{}\hlopt{(\&(}\hlstd{thread}\hlopt{{-}$>$}\hlstd{thread\textunderscore timer}\hlopt{),\ }\hlstd{RT\textunderscore TIMER\textunderscore CTRL\textunderscore SET\textunderscore TIME}\hlopt{,\ \&}\hlstd{tick}\hlopt{);}\\
+\hllin{428\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{rt\textunderscore timer\textunderscore start}\hlstd{}\hlopt{(\&(}\hlstd{thread}\hlopt{{-}$>$}\hlstd{thread\textunderscore timer}\hlopt{));}\\
+\hllin{429\ }\hlstd{\\
+\hllin{430\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ enable\ interrupt\ {*}/}\hlstd{\\
+\hllin{431\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{rt\textunderscore hw\textunderscore interrupt\textunderscore enable}\hlstd{}\hlopt{(}\hlstd{temp}\hlopt{);}\\
+\hllin{432\ }\hlstd{\\
+\hllin{433\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{rt\textunderscore schedule}\hlstd{}\hlopt{();}\\
+\hllin{434\ }\hlstd{\\
+\hllin{435\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ clear\ error\ number\ of\ this\ thread\ to\ RT\textunderscore EOK\ {*}/}\hlstd{\\
+\hllin{436\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{if\ }\hlstd{}\hlopt{(}\hlstd{thread}\hlopt{{-}$>$}\hlstd{error\ }\hlopt{==\ {-}}\hlstd{RT\textunderscore ETIMEOUT}\hlopt{)}\\
+\hllin{437\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{error\ }\hlopt{=\ }\hlstd{RT\textunderscore EOK}\hlopt{;}\\
+\hllin{438\ }\hlstd{\\
+\hllin{439\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{return\ }\hlstd{RT\textunderscore EOK}\hlopt{;}\\
+\hllin{440\ }\hlstd{}\hlopt{\}}\\
+\hllin{441\ }\hlstd{}\\
+\hllin{442\ }\hlcom{/{*}{*}}\\
+\hllin{443\ }\hlcom{\ {*}\ This\ function\ will\ let\ current\ thread\ delay\ for\ some\ ticks.}\\
+\hllin{444\ }\hlcom{\ {*}}\\
+\hllin{445\ }\hlcom{\ {*}\ @param\ tick\ the\ delay\ ticks}\\
+\hllin{446\ }\hlcom{\ {*}}\\
+\hllin{447\ }\hlcom{\ {*}\ @return\ RT\textunderscore EOK}\\
+\hllin{448\ }\hlcom{\ {*}/}\hlstd{\\
+\hllin{449\ }rt\textunderscore err\textunderscore t\ }\hlkwd{rt\textunderscore thread\textunderscore delay}\hlstd{}\hlopt{(}\hlstd{rt\textunderscore tick\textunderscore t\ tick}\hlopt{)}\\
+\hllin{450\ }\hlstd{}\hlopt{\{}\\
+\hllin{451\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{return\ }\hlstd{}\hlkwd{rt\textunderscore thread\textunderscore sleep}\hlstd{}\hlopt{(}\hlstd{tick}\hlopt{);}\\
+\hllin{452\ }\hlstd{}\hlopt{\}}\\
+\hllin{453\ }\hlstd{}\hlkwd{RTM\textunderscore EXPORT}\hlstd{}\hlopt{(}\hlstd{rt\textunderscore thread\textunderscore delay}\hlopt{);}\\
+\hllin{454\ }\hlstd{}\\
+\hllin{455\ }\hlcom{/{*}{*}}\\
+\hllin{456\ }\hlcom{\ {*}\ This\ function\ will\ control\ thread\ behaviors\ according\ to\ control\ command.}\\
+\hllin{457\ }\hlcom{\ {*}}\\
+\hllin{458\ }\hlcom{\ {*}\ @param\ thread\ the\ specified\ thread\ to\ be\ controlled}\\
+\hllin{459\ }\hlcom{\ {*}\ @param\ cmd\ the\ control\ command,\ which\ includes}\\
+\hllin{460\ }\hlcom{\ {*}}\hlstd{\ \ }\hlcom{RT\textunderscore THREAD\textunderscore CTRL\textunderscore CHANGE\textunderscore PRIORITY\ for\ changing\ priority\ level\ of\ thread;}\\
+\hllin{461\ }\hlcom{\ {*}}\hlstd{\ \ }\hlcom{RT\textunderscore THREAD\textunderscore CTRL\textunderscore STARTUP\ for\ starting\ a\ thread;}\\
+\hllin{462\ }\hlcom{\ {*}}\hlstd{\ \ }\hlcom{RT\textunderscore THREAD\textunderscore CTRL\textunderscore CLOSE\ for\ delete\ a\ thread.}\\
+\hllin{463\ }\hlcom{\ {*}\ @param\ arg\ the\ argument\ of\ control\ command}\\
+\hllin{464\ }\hlcom{\ {*}}\\
+\hllin{465\ }\hlcom{\ {*}\ @return\ RT\textunderscore EOK}\\
+\hllin{466\ }\hlcom{\ {*}/}\hlstd{\\
+\hllin{467\ }rt\textunderscore err\textunderscore t\ }\hlkwd{rt\textunderscore thread\textunderscore control}\hlstd{}\hlopt{(}\hlstd{rt\textunderscore thread\textunderscore t\ thread}\hlopt{,\ }\hlstd{rt\textunderscore uint8\textunderscore t\ cmd}\hlopt{,\ }\hlstd{}\hlkwb{void\ }\hlstd{}\hlopt{{*}}\hlstd{arg}\hlopt{)}\\
+\hllin{468\ }\hlstd{}\hlopt{\{}\\
+\hllin{469\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwc{register\ }\hlstd{rt\textunderscore base\textunderscore t\ temp}\hlopt{;}\\
+\hllin{470\ }\hlstd{\\
+\hllin{471\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ thread\ check\ {*}/}\hlstd{\\
+\hllin{472\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{RT\textunderscore ASSERT}\hlstd{}\hlopt{(}\hlstd{thread\ }\hlopt{!=\ }\hlstd{RT\textunderscore NULL}\hlopt{);}\\
+\hllin{473\ }\hlstd{\\
+\hllin{474\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{switch\ }\hlstd{}\hlopt{(}\hlstd{cmd}\hlopt{)}\\
+\hllin{475\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlopt{\{}\\
+\hllin{476\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{case\ }\hlstd{RT\textunderscore THREAD\textunderscore CTRL\textunderscore CHANGE\textunderscore PRIORITY}\hlopt{:}\\
+\hllin{477\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlcom{/{*}\ disable\ interrupt\ {*}/}\hlstd{\\
+\hllin{478\ }}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{temp\ }\hlopt{=\ }\hlstd{}\hlkwd{rt\textunderscore hw\textunderscore interrupt\textunderscore disable}\hlstd{}\hlopt{();}\\
+\hllin{479\ }\hlstd{\\
+\hllin{480\ }}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlcom{/{*}\ for\ ready\ thread,\ change\ queue\ {*}/}\hlstd{\\
+\hllin{481\ }}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwa{if\ }\hlstd{}\hlopt{(}\hlstd{thread}\hlopt{{-}$>$}\hlstd{stat\ }\hlopt{==\ }\hlstd{RT\textunderscore THREAD\textunderscore READY}\hlopt{)}\\
+\hllin{482\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlopt{\{}\\
+\hllin{483\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{}\hlcom{/{*}\ remove\ thread\ from\ schedule\ queue\ first\ {*}/}\hlstd{\\
+\hllin{484\ }}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{}\hlkwd{rt\textunderscore schedule\textunderscore remove\textunderscore thread}\hlstd{}\hlopt{(}\hlstd{thread}\hlopt{);}\\
+\hllin{485\ }\hlstd{\\
+\hllin{486\ }}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{}\hlcom{/{*}\ change\ thread\ priority\ {*}/}\hlstd{\\
+\hllin{487\ }}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{current\textunderscore priority\ }\hlopt{=\ {*}(}\hlstd{rt\textunderscore uint8\textunderscore t\ }\hlopt{{*})}\hlstd{arg}\hlopt{;}\\
+\hllin{488\ }\hlstd{\\
+\hllin{489\ }}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{}\hlcom{/{*}\ recalculate\ priority\ attribute\ {*}/}\hlstd{}\\
+\hllin{490\ }\hlppc{\#if\ RT\textunderscore THREAD\textunderscore PRIORITY\textunderscore MAX\ $>$\ 32}\\
+\hllin{491\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{number}\hlstd{\ \ \ \ \ \ }\hlstd{}\hlopt{=\ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{current\textunderscore priority\ }\hlopt{$>$$>$\ }\hlstd{}\hlnum{3}\hlstd{}\hlopt{;}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlopt{}\hlstd{}\hlcom{/{*}\ 5bit\ {*}/}\hlstd{\\
+\hllin{492\ }}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{number\textunderscore mask\ }\hlopt{=\ }\hlstd{}\hlnum{1\ }\hlstd{}\hlopt{$<$$<$\ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{number}\hlopt{;}\\
+\hllin{493\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{high\textunderscore mask}\hlstd{\ \ \ }\hlstd{}\hlopt{=\ }\hlstd{}\hlnum{1\ }\hlstd{}\hlopt{$<$$<$\ (}\hlstd{thread}\hlopt{{-}$>$}\hlstd{current\textunderscore priority\ }\hlopt{\&\ }\hlstd{}\hlnum{0x07}\hlstd{}\hlopt{);}\hlstd{\ \ \ }\hlopt{}\hlstd{}\hlcom{/{*}\ 3bit\ {*}/}\hlstd{}\\
+\hllin{494\ }\hlppc{\#else}\\
+\hllin{495\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{number\textunderscore mask\ }\hlopt{=\ }\hlstd{}\hlnum{1\ }\hlstd{}\hlopt{$<$$<$\ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{current\textunderscore priority}\hlopt{;}\\
+\hllin{496\ }\hlstd{}\hlppc{\#endif}\\
+\hllin{497\ }\hlstd{\\
+\hllin{498\ }}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{}\hlcom{/{*}\ insert\ thread\ to\ schedule\ queue\ again\ {*}/}\hlstd{\\
+\hllin{499\ }}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{}\hlkwd{rt\textunderscore schedule\textunderscore insert\textunderscore thread}\hlstd{}\hlopt{(}\hlstd{thread}\hlopt{);}\\
+\hllin{500\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlopt{\}}\\
+\hllin{501\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwa{else}\\
+\hllin{502\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlopt{\{}\\
+\hllin{503\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{current\textunderscore priority\ }\hlopt{=\ {*}(}\hlstd{rt\textunderscore uint8\textunderscore t\ }\hlopt{{*})}\hlstd{arg}\hlopt{;}\\
+\hllin{504\ }\hlstd{\\
+\hllin{505\ }}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{}\hlcom{/{*}\ recalculate\ priority\ attribute\ {*}/}\hlstd{}\\
+\hllin{506\ }\hlppc{\#if\ RT\textunderscore THREAD\textunderscore PRIORITY\textunderscore MAX\ $>$\ 32}\\
+\hllin{507\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{number}\hlstd{\ \ \ \ \ \ }\hlstd{}\hlopt{=\ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{current\textunderscore priority\ }\hlopt{$>$$>$\ }\hlstd{}\hlnum{3}\hlstd{}\hlopt{;}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlopt{}\hlstd{}\hlcom{/{*}\ 5bit\ {*}/}\hlstd{\\
+\hllin{508\ }}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{number\textunderscore mask\ }\hlopt{=\ }\hlstd{}\hlnum{1\ }\hlstd{}\hlopt{$<$$<$\ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{number}\hlopt{;}\\
+\hllin{509\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{high\textunderscore mask}\hlstd{\ \ \ }\hlstd{}\hlopt{=\ }\hlstd{}\hlnum{1\ }\hlstd{}\hlopt{$<$$<$\ (}\hlstd{thread}\hlopt{{-}$>$}\hlstd{current\textunderscore priority\ }\hlopt{\&\ }\hlstd{}\hlnum{0x07}\hlstd{}\hlopt{);}\hlstd{\ \ \ }\hlopt{}\hlstd{}\hlcom{/{*}\ 3bit\ {*}/}\hlstd{}\\
+\hllin{510\ }\hlppc{\#else}\\
+\hllin{511\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{number\textunderscore mask\ }\hlopt{=\ }\hlstd{}\hlnum{1\ }\hlstd{}\hlopt{$<$$<$\ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{current\textunderscore priority}\hlopt{;}\\
+\hllin{512\ }\hlstd{}\hlppc{\#endif}\\
+\hllin{513\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlopt{\}}\\
+\hllin{514\ }\hlstd{\\
+\hllin{515\ }}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlcom{/{*}\ enable\ interrupt\ {*}/}\hlstd{\\
+\hllin{516\ }}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwd{rt\textunderscore hw\textunderscore interrupt\textunderscore enable}\hlstd{}\hlopt{(}\hlstd{temp}\hlopt{);}\\
+\hllin{517\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwa{break}\hlstd{}\hlopt{;}\\
+\hllin{518\ }\hlstd{\\
+\hllin{519\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{case\ }\hlstd{RT\textunderscore THREAD\textunderscore CTRL\textunderscore STARTUP}\hlopt{:}\\
+\hllin{520\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwa{return\ }\hlstd{}\hlkwd{rt\textunderscore thread\textunderscore startup}\hlstd{}\hlopt{(}\hlstd{thread}\hlopt{);}\\
+\hllin{521\ }\hlstd{}\\
+\hllin{522\ }\hlppc{\#ifdef\ RT\textunderscore USING\textunderscore HEAP}\\
+\hllin{523\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{case\ }\hlstd{RT\textunderscore THREAD\textunderscore CTRL\textunderscore CLOSE}\hlopt{:}\\
+\hllin{524\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwa{return\ }\hlstd{}\hlkwd{rt\textunderscore thread\textunderscore delete}\hlstd{}\hlopt{(}\hlstd{thread}\hlopt{);}\\
+\hllin{525\ }\hlstd{}\hlppc{\#endif}\\
+\hllin{526\ }\hlstd{\\
+\hllin{527\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{default}\hlstd{}\hlopt{:}\\
+\hllin{528\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwa{break}\hlstd{}\hlopt{;}\\
+\hllin{529\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlopt{\}}\\
+\hllin{530\ }\hlstd{\\
+\hllin{531\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{return\ }\hlstd{RT\textunderscore EOK}\hlopt{;}\\
+\hllin{532\ }\hlstd{}\hlopt{\}}\\
+\hllin{533\ }\hlstd{}\hlkwd{RTM\textunderscore EXPORT}\hlstd{}\hlopt{(}\hlstd{rt\textunderscore thread\textunderscore control}\hlopt{);}\\
+\hllin{534\ }\hlstd{}\\
+\hllin{535\ }\hlcom{/{*}{*}}\\
+\hllin{536\ }\hlcom{\ {*}\ This\ function\ will\ suspend\ the\ specified\ thread.}\\
+\hllin{537\ }\hlcom{\ {*}}\\
+\hllin{538\ }\hlcom{\ {*}\ @param\ thread\ the\ thread\ to\ be\ suspended}\\
+\hllin{539\ }\hlcom{\ {*}}\\
+\hllin{540\ }\hlcom{\ {*}\ @return\ the\ operation\ status,\ RT\textunderscore EOK\ on\ OK,\ {-}RT\textunderscore ERROR\ on\ error}\\
+\hllin{541\ }\hlcom{\ {*}}\\
+\hllin{542\ }\hlcom{\ {*}\ @note\ if\ suspend\ self\ thread,\ after\ this\ function\ call,\ the}\\
+\hllin{543\ }\hlcom{\ {*}\ rt\textunderscore schedule()\ must\ be\ invoked.}\\
+\hllin{544\ }\hlcom{\ {*}/}\hlstd{\\
+\hllin{545\ }rt\textunderscore err\textunderscore t\ }\hlkwd{rt\textunderscore thread\textunderscore suspend}\hlstd{}\hlopt{(}\hlstd{rt\textunderscore thread\textunderscore t\ thread}\hlopt{)}\\
+\hllin{546\ }\hlstd{}\hlopt{\{}\\
+\hllin{547\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwc{register\ }\hlstd{rt\textunderscore base\textunderscore t\ temp}\hlopt{;}\\
+\hllin{548\ }\hlstd{\\
+\hllin{549\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ thread\ check\ {*}/}\hlstd{\\
+\hllin{550\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{RT\textunderscore ASSERT}\hlstd{}\hlopt{(}\hlstd{thread\ }\hlopt{!=\ }\hlstd{RT\textunderscore NULL}\hlopt{);}\\
+\hllin{551\ }\hlstd{\\
+\hllin{552\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{RT\textunderscore DEBUG\textunderscore LOG}\hlstd{}\hlopt{(}\hlstd{RT\textunderscore DEBUG\textunderscore THREAD}\hlopt{,\ (}\hlstd{}\hlstr{"thread\ suspend:}\hlstd{\ \ }\hlstr{\%s}\hlesc{$\backslash$n}\hlstr{"}\hlstd{}\hlopt{,\ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{name}\hlopt{));}\\
+\hllin{553\ }\hlstd{\\
+\hllin{554\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{if\ }\hlstd{}\hlopt{(}\hlstd{thread}\hlopt{{-}$>$}\hlstd{stat\ }\hlopt{!=\ }\hlstd{RT\textunderscore THREAD\textunderscore READY}\hlopt{)}\\
+\hllin{555\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlopt{\{}\\
+\hllin{556\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwd{RT\textunderscore DEBUG\textunderscore LOG}\hlstd{}\hlopt{(}\hlstd{RT\textunderscore DEBUG\textunderscore THREAD}\hlopt{,\ (}\hlstd{}\hlstr{"thread\ suspend:\ thread\ disorder,\ \%d}\hlesc{$\backslash$n}\hlstr{"}\hlstd{}\hlopt{,}\\
+\hllin{557\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{stat}\hlopt{));}\\
+\hllin{558\ }\hlstd{\\
+\hllin{559\ }}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwa{return\ }\hlstd{}\hlopt{{-}}\hlstd{RT\textunderscore ERROR}\hlopt{;}\\
+\hllin{560\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlopt{\}}\\
+\hllin{561\ }\hlstd{\\
+\hllin{562\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ disable\ interrupt\ {*}/}\hlstd{\\
+\hllin{563\ }}\hlstd{\ \ \ \ }\hlstd{temp\ }\hlopt{=\ }\hlstd{}\hlkwd{rt\textunderscore hw\textunderscore interrupt\textunderscore disable}\hlstd{}\hlopt{();}\\
+\hllin{564\ }\hlstd{\\
+\hllin{565\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ change\ thread\ stat\ {*}/}\hlstd{\\
+\hllin{566\ }}\hlstd{\ \ \ \ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{stat\ }\hlopt{=\ }\hlstd{RT\textunderscore THREAD\textunderscore SUSPEND}\hlopt{;}\\
+\hllin{567\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{rt\textunderscore schedule\textunderscore remove\textunderscore thread}\hlstd{}\hlopt{(}\hlstd{thread}\hlopt{);}\\
+\hllin{568\ }\hlstd{\\
+\hllin{569\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ enable\ interrupt\ {*}/}\hlstd{\\
+\hllin{570\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{rt\textunderscore hw\textunderscore interrupt\textunderscore enable}\hlstd{}\hlopt{(}\hlstd{temp}\hlopt{);}\\
+\hllin{571\ }\hlstd{\\
+\hllin{572\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{return\ }\hlstd{RT\textunderscore EOK}\hlopt{;}\\
+\hllin{573\ }\hlstd{}\hlopt{\}}\\
+\hllin{574\ }\hlstd{}\hlkwd{RTM\textunderscore EXPORT}\hlstd{}\hlopt{(}\hlstd{rt\textunderscore thread\textunderscore suspend}\hlopt{);}\\
+\hllin{575\ }\hlstd{}\\
+\hllin{576\ }\hlcom{/{*}{*}}\\
+\hllin{577\ }\hlcom{\ {*}\ This\ function\ will\ resume\ a\ thread\ and\ put\ it\ to\ system\ ready\ queue.}\\
+\hllin{578\ }\hlcom{\ {*}}\\
+\hllin{579\ }\hlcom{\ {*}\ @param\ thread\ the\ thread\ to\ be\ resumed}\\
+\hllin{580\ }\hlcom{\ {*}}\\
+\hllin{581\ }\hlcom{\ {*}\ @return\ the\ operation\ status,\ RT\textunderscore EOK\ on\ OK,\ {-}RT\textunderscore ERROR\ on\ error}\\
+\hllin{582\ }\hlcom{\ {*}/}\hlstd{\\
+\hllin{583\ }rt\textunderscore err\textunderscore t\ }\hlkwd{rt\textunderscore thread\textunderscore resume}\hlstd{}\hlopt{(}\hlstd{rt\textunderscore thread\textunderscore t\ thread}\hlopt{)}\\
+\hllin{584\ }\hlstd{}\hlopt{\{}\\
+\hllin{585\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwc{register\ }\hlstd{rt\textunderscore base\textunderscore t\ temp}\hlopt{;}\\
+\hllin{586\ }\hlstd{\\
+\hllin{587\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ thread\ check\ {*}/}\hlstd{\\
+\hllin{588\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{RT\textunderscore ASSERT}\hlstd{}\hlopt{(}\hlstd{thread\ }\hlopt{!=\ }\hlstd{RT\textunderscore NULL}\hlopt{);}\\
+\hllin{589\ }\hlstd{\\
+\hllin{590\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{RT\textunderscore DEBUG\textunderscore LOG}\hlstd{}\hlopt{(}\hlstd{RT\textunderscore DEBUG\textunderscore THREAD}\hlopt{,\ (}\hlstd{}\hlstr{"thread\ resume:}\hlstd{\ \ }\hlstr{\%s}\hlesc{$\backslash$n}\hlstr{"}\hlstd{}\hlopt{,\ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{name}\hlopt{));}\\
+\hllin{591\ }\hlstd{\\
+\hllin{592\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{if\ }\hlstd{}\hlopt{(}\hlstd{thread}\hlopt{{-}$>$}\hlstd{stat\ }\hlopt{!=\ }\hlstd{RT\textunderscore THREAD\textunderscore SUSPEND}\hlopt{)}\\
+\hllin{593\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlopt{\{}\\
+\hllin{594\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwd{RT\textunderscore DEBUG\textunderscore LOG}\hlstd{}\hlopt{(}\hlstd{RT\textunderscore DEBUG\textunderscore THREAD}\hlopt{,\ (}\hlstd{}\hlstr{"thread\ resume:\ thread\ disorder,\ \%d}\hlesc{$\backslash$n}\hlstr{"}\hlstd{}\hlopt{,}\\
+\hllin{595\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{stat}\hlopt{));}\\
+\hllin{596\ }\hlstd{\\
+\hllin{597\ }}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwa{return\ }\hlstd{}\hlopt{{-}}\hlstd{RT\textunderscore ERROR}\hlopt{;}\\
+\hllin{598\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlopt{\}}\\
+\hllin{599\ }\hlstd{\\
+\hllin{600\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ disable\ interrupt\ {*}/}\hlstd{\\
+\hllin{601\ }}\hlstd{\ \ \ \ }\hlstd{temp\ }\hlopt{=\ }\hlstd{}\hlkwd{rt\textunderscore hw\textunderscore interrupt\textunderscore disable}\hlstd{}\hlopt{();}\\
+\hllin{602\ }\hlstd{\\
+\hllin{603\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ remove\ from\ suspend\ list\ {*}/}\hlstd{\\
+\hllin{604\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{rt\textunderscore list\textunderscore remove}\hlstd{}\hlopt{(\&(}\hlstd{thread}\hlopt{{-}$>$}\hlstd{tlist}\hlopt{));}\\
+\hllin{605\ }\hlstd{\\
+\hllin{606\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ remove\ thread\ timer\ {*}/}\hlstd{\\
+\hllin{607\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{rt\textunderscore list\textunderscore remove}\hlstd{}\hlopt{(\&(}\hlstd{thread}\hlopt{{-}$>$}\hlstd{thread\textunderscore timer}\hlopt{.}\hlstd{list}\hlopt{));}\\
+\hllin{608\ }\hlstd{\\
+\hllin{609\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ change\ timer\ state\ {*}/}\hlstd{\\
+\hllin{610\ }}\hlstd{\ \ \ \ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{thread\textunderscore timer}\hlopt{.}\hlstd{parent}\hlopt{.}\hlstd{flag\ }\hlopt{\&=\ $\sim$}\hlstd{RT\textunderscore TIMER\textunderscore FLAG\textunderscore ACTIVATED}\hlopt{;}\\
+\hllin{611\ }\hlstd{\\
+\hllin{612\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ enable\ interrupt\ {*}/}\hlstd{\\
+\hllin{613\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{rt\textunderscore hw\textunderscore interrupt\textunderscore enable}\hlstd{}\hlopt{(}\hlstd{temp}\hlopt{);}\\
+\hllin{614\ }\hlstd{\\
+\hllin{615\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ insert\ to\ schedule\ ready\ list\ {*}/}\hlstd{\\
+\hllin{616\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{rt\textunderscore schedule\textunderscore insert\textunderscore thread}\hlstd{}\hlopt{(}\hlstd{thread}\hlopt{);}\\
+\hllin{617\ }\hlstd{\\
+\hllin{618\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{return\ }\hlstd{RT\textunderscore EOK}\hlopt{;}\\
+\hllin{619\ }\hlstd{}\hlopt{\}}\\
+\hllin{620\ }\hlstd{}\hlkwd{RTM\textunderscore EXPORT}\hlstd{}\hlopt{(}\hlstd{rt\textunderscore thread\textunderscore resume}\hlopt{);}\\
+\hllin{621\ }\hlstd{}\\
+\hllin{622\ }\hlcom{/{*}{*}}\\
+\hllin{623\ }\hlcom{\ {*}\ This\ function\ is\ the\ timeout\ function\ for\ thread,\ normally\ which\ is\ invoked}\\
+\hllin{624\ }\hlcom{\ {*}\ when\ thread\ is\ timeout\ to\ wait\ some\ resource.}\\
+\hllin{625\ }\hlcom{\ {*}}\\
+\hllin{626\ }\hlcom{\ {*}\ @param\ parameter\ the\ parameter\ of\ thread\ timeout\ function}\\
+\hllin{627\ }\hlcom{\ {*}/}\hlstd{}\\
+\hllin{628\ }\hlkwb{void\ }\hlstd{}\hlkwd{rt\textunderscore thread\textunderscore timeout}\hlstd{}\hlopt{(}\hlstd{}\hlkwb{void\ }\hlstd{}\hlopt{{*}}\hlstd{parameter}\hlopt{)}\\
+\hllin{629\ }\hlstd{}\hlopt{\{}\\
+\hllin{630\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwb{struct\ }\hlstd{rt\textunderscore thread\ }\hlopt{{*}}\hlstd{thread}\hlopt{;}\\
+\hllin{631\ }\hlstd{\\
+\hllin{632\ }}\hlstd{\ \ \ \ }\hlstd{thread\ }\hlopt{=\ (}\hlstd{}\hlkwb{struct\ }\hlstd{rt\textunderscore thread\ }\hlopt{{*})}\hlstd{parameter}\hlopt{;}\\
+\hllin{633\ }\hlstd{\\
+\hllin{634\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ thread\ check\ {*}/}\hlstd{\\
+\hllin{635\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{RT\textunderscore ASSERT}\hlstd{}\hlopt{(}\hlstd{thread\ }\hlopt{!=\ }\hlstd{RT\textunderscore NULL}\hlopt{);}\\
+\hllin{636\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{RT\textunderscore ASSERT}\hlstd{}\hlopt{(}\hlstd{thread}\hlopt{{-}$>$}\hlstd{stat\ }\hlopt{==\ }\hlstd{RT\textunderscore THREAD\textunderscore SUSPEND}\hlopt{);}\\
+\hllin{637\ }\hlstd{\\
+\hllin{638\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ set\ error\ number\ {*}/}\hlstd{\\
+\hllin{639\ }}\hlstd{\ \ \ \ }\hlstd{thread}\hlopt{{-}$>$}\hlstd{error\ }\hlopt{=\ {-}}\hlstd{RT\textunderscore ETIMEOUT}\hlopt{;}\\
+\hllin{640\ }\hlstd{\\
+\hllin{641\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ remove\ from\ suspend\ list\ {*}/}\hlstd{\\
+\hllin{642\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{rt\textunderscore list\textunderscore remove}\hlstd{}\hlopt{(\&(}\hlstd{thread}\hlopt{{-}$>$}\hlstd{tlist}\hlopt{));}\\
+\hllin{643\ }\hlstd{\\
+\hllin{644\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ insert\ to\ schedule\ ready\ list\ {*}/}\hlstd{\\
+\hllin{645\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{rt\textunderscore schedule\textunderscore insert\textunderscore thread}\hlstd{}\hlopt{(}\hlstd{thread}\hlopt{);}\\
+\hllin{646\ }\hlstd{\\
+\hllin{647\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ do\ schedule\ {*}/}\hlstd{\\
+\hllin{648\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwd{rt\textunderscore schedule}\hlstd{}\hlopt{();}\\
+\hllin{649\ }\hlstd{}\hlopt{\}}\\
+\hllin{650\ }\hlstd{}\hlkwd{RTM\textunderscore EXPORT}\hlstd{}\hlopt{(}\hlstd{rt\textunderscore thread\textunderscore timeout}\hlopt{);}\\
+\hllin{651\ }\hlstd{}\\
+\hllin{652\ }\hlcom{/{*}{*}}\\
+\hllin{653\ }\hlcom{\ {*}\ This\ function\ will\ find\ the\ specified\ thread.}\\
+\hllin{654\ }\hlcom{\ {*}}\\
+\hllin{655\ }\hlcom{\ {*}\ @param\ name\ the\ name\ of\ thread\ finding}\\
+\hllin{656\ }\hlcom{\ {*}}\\
+\hllin{657\ }\hlcom{\ {*}\ @return\ the\ found\ thread}\\
+\hllin{658\ }\hlcom{\ {*}}\\
+\hllin{659\ }\hlcom{\ {*}\ @note\ please\ don't\ invoke\ this\ function\ in\ interrupt\ status.}\\
+\hllin{660\ }\hlcom{\ {*}/}\hlstd{\\
+\hllin{661\ }rt\textunderscore thread\textunderscore t\ }\hlkwd{rt\textunderscore thread\textunderscore find}\hlstd{}\hlopt{(}\hlstd{}\hlkwb{char\ }\hlstd{}\hlopt{{*}}\hlstd{name}\hlopt{)}\\
+\hllin{662\ }\hlstd{}\hlopt{\{}\\
+\hllin{663\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwb{struct\ }\hlstd{rt\textunderscore object\textunderscore information\ }\hlopt{{*}}\hlstd{information}\hlopt{;}\\
+\hllin{664\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwb{struct\ }\hlstd{rt\textunderscore object\ }\hlopt{{*}}\hlstd{object}\hlopt{;}\\
+\hllin{665\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwb{struct\ }\hlstd{rt\textunderscore list\textunderscore node\ }\hlopt{{*}}\hlstd{node}\hlopt{;}\\
+\hllin{666\ }\hlstd{\\
+\hllin{667\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwc{extern\ }\hlstd{}\hlkwb{struct\ }\hlstd{rt\textunderscore object\textunderscore information\ rt\textunderscore object\textunderscore container}\hlopt{{[}{]};}\\
+\hllin{668\ }\hlstd{\\
+\hllin{669\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ enter\ critical\ {*}/}\hlstd{\\
+\hllin{670\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{if\ }\hlstd{}\hlopt{(}\hlstd{}\hlkwd{rt\textunderscore thread\textunderscore self}\hlstd{}\hlopt{()\ !=\ }\hlstd{RT\textunderscore NULL}\hlopt{)}\\
+\hllin{671\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwd{rt\textunderscore enter\textunderscore critical}\hlstd{}\hlopt{();}\\
+\hllin{672\ }\hlstd{\\
+\hllin{673\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ try\ to\ find\ device\ object\ {*}/}\hlstd{\\
+\hllin{674\ }}\hlstd{\ \ \ \ }\hlstd{information\ }\hlopt{=\ \&}\hlstd{rt\textunderscore object\textunderscore container}\hlopt{{[}}\hlstd{RT\textunderscore Object\textunderscore Class\textunderscore Thread}\hlopt{{]};}\\
+\hllin{675\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{for\ }\hlstd{}\hlopt{(}\hlstd{node}\hlstd{\ \ }\hlstd{}\hlopt{=\ }\hlstd{information}\hlopt{{-}$>$}\hlstd{object\textunderscore list}\hlopt{.}\hlstd{next}\hlopt{;}\\
+\hllin{676\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{node\ }\hlopt{!=\ \&(}\hlstd{information}\hlopt{{-}$>$}\hlstd{object\textunderscore list}\hlopt{);}\\
+\hllin{677\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{node}\hlstd{\ \ }\hlstd{}\hlopt{=\ }\hlstd{node}\hlopt{{-}$>$}\hlstd{next}\hlopt{)}\\
+\hllin{678\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlopt{\{}\\
+\hllin{679\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{object\ }\hlopt{=\ }\hlstd{}\hlkwd{rt\textunderscore list\textunderscore entry}\hlstd{}\hlopt{(}\hlstd{node}\hlopt{,\ }\hlstd{}\hlkwb{struct\ }\hlstd{rt\textunderscore object}\hlopt{,\ }\hlstd{list}\hlopt{);}\\
+\hllin{680\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwa{if\ }\hlstd{}\hlopt{(}\hlstd{}\hlkwd{rt\textunderscore strncmp}\hlstd{}\hlopt{(}\hlstd{object}\hlopt{{-}$>$}\hlstd{name}\hlopt{,\ }\hlstd{name}\hlopt{,\ }\hlstd{RT\textunderscore NAME\textunderscore MAX}\hlopt{)\ ==\ }\hlstd{}\hlnum{0}\hlstd{}\hlopt{)}\\
+\hllin{681\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlopt{\{}\\
+\hllin{682\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{}\hlcom{/{*}\ leave\ critical\ {*}/}\hlstd{\\
+\hllin{683\ }}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{}\hlkwa{if\ }\hlstd{}\hlopt{(}\hlstd{}\hlkwd{rt\textunderscore thread\textunderscore self}\hlstd{}\hlopt{()\ !=\ }\hlstd{RT\textunderscore NULL}\hlopt{)}\\
+\hllin{684\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{}\hlkwd{rt\textunderscore exit\textunderscore critical}\hlstd{}\hlopt{();}\\
+\hllin{685\ }\hlstd{\\
+\hllin{686\ }}\hlstd{\ \ \ \ \ \ \ \ \ \ \ \ }\hlstd{}\hlkwa{return\ }\hlstd{}\hlopt{(}\hlstd{rt\textunderscore thread\textunderscore t}\hlopt{)}\hlstd{object}\hlopt{;}\\
+\hllin{687\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlopt{\}}\\
+\hllin{688\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlopt{\}}\\
+\hllin{689\ }\hlstd{\\
+\hllin{690\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ leave\ critical\ {*}/}\hlstd{\\
+\hllin{691\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{if\ }\hlstd{}\hlopt{(}\hlstd{}\hlkwd{rt\textunderscore thread\textunderscore self}\hlstd{}\hlopt{()\ !=\ }\hlstd{RT\textunderscore NULL}\hlopt{)}\\
+\hllin{692\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwd{rt\textunderscore exit\textunderscore critical}\hlstd{}\hlopt{();}\\
+\hllin{693\ }\hlstd{\\
+\hllin{694\ }}\hlstd{\ \ \ \ }\hlstd{}\hlcom{/{*}\ not\ found\ {*}/}\hlstd{\\
+\hllin{695\ }}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{return\ }\hlstd{RT\textunderscore NULL}\hlopt{;}\\
+\hllin{696\ }\hlstd{}\hlopt{\}}\\
+\hllin{697\ }\hlstd{}\hlkwd{RTM\textunderscore EXPORT}\hlstd{}\hlopt{(}\hlstd{rt\textunderscore thread\textunderscore find}\hlopt{);}\\
+\hllin{698\ }\hlstd{}\\
+\hllin{699\ }\hlcom{/{*}@\}{*}/}\hlstd{}\\
+\hllin{700\ }\\
+\mbox{}
+\normalfont
+\normalsize
