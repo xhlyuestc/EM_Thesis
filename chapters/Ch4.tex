@@ -11,41 +11,41 @@ RT-Thread是一个开放源代码的实时操作系统，并且商业许可证�
 \pic[htbp]{RT-Thread及外围组件基本框架\protect\footnotemark}{}{rtt.png}
 \footnotetext{图取自《RT-Thread实时操作系统编程指南0.3.0》P25}
 
-RT-Thread Kernel内核部分包括了RT-Thread的核心代码，包括对象管理器，线程管理及调度，线程间通信等的微小内核实现（最小能够到达4k ROM，1k RAM体积占用）。内核库是为了保证内核能够独立运作的一套小型类似C库实现（这部分根据编译器自带C库的情况会有些不同，使用GCC编译器时，携带更多的标准C库实现）。CPU及板级支持包包含了RT-Thread支持的各个平台移植代码，通常会包含两个汇编文件，一个是系统启动初始化文件，一个是线程进行上下文切换的文件，其他的都是C源文件。
+RT-Thread Kernel内{\cf}核部{\cf}分包{\cf}括了{\cf}RT{\cf}-T{\cf}hr{\cf}ea{\cf}d的{\cf}核心{\cf}代码{\cf}，包{\cf}括对{\cf}象管{\cf}理器{\cf}，线{\cf}程管{\cf}理及{\cf}调度{\cf}，线{\cf}程间{\cf}通信{\cf}等的{\cf}微小{\cf}内核{\cf}实现{\cf}（最{\cf}小能{\cf}够到{\cf}达4{\cf}k {\cf}RO{\cf}M，{\cf}1k{\cf} R{\cf}AM{\cf}体积{\cf}占用{\cf}）。{\cf}内核{\cf}库是{\cf}为了{\cf}保证{\cf}内核{\cf}能够{\cf}独立{\cf}运作{\cf}的一{\cf}套小{\cf}型类{\cf}似C{\cf}库实{\cf}现（{\cf}这部{\cf}分根{\cf}据编{\cf}译器{\cf}自带{\cf}C库{\cf}的情{\cf}况会{\cf}有些{\cf}不同{\cf}，使{\cf}用G{\cf}CC{\cf}编译{\cf}器时{\cf}，携{\cf}带更{\cf}多的{\cf}标准{\cf}C库{\cf}实现{\cf}）。{\cf}CP{\cf}U及{\cf}板级{\cf}支持{\cf}包包{\cf}含了{\cf}RT{\cf}-T{\cf}hr{\cf}ea{\cf}d支{\cf}持的{\cf}各个{\cf}平台{\cf}移植{\cf}代码{\cf}，通{\cf}常会{\cf}包含{\cf}两个{\cf}汇编{\cf}文件{\cf}，一{\cf}个是{\cf}系统{\cf}启动{\cf}初始{\cf}化文{\cf}件，{\cf}一个{\cf}是线{\cf}程进{\cf}行上{\cf}下文{\cf}切换{\cf}的文{\cf}件，{\cf}其他{\cf}的都{\cf}是C{\cf}源文{\cf}件。
 
-RT-Thread实时操作系统核心是一个高效的硬实时核心，它具备非常优异的实时性、稳定性、可剪裁性。最小可以到3KB ROM占用、1KB RAM占用。
+RT-Thread实{\cf}时操{\cf}作系{\cf}统核{\cf}心是{\cf}一个{\cf}高效{\cf}的硬{\cf}实时{\cf}核心{\cf}，它{\cf}具备{\cf}非常{\cf}优异{\cf}的实{\cf}时性{\cf}、稳{\cf}定性{\cf}、可{\cf}剪裁{\cf}性。{\cf}最小{\cf}可以{\cf}到3{\cf}KB{\cf} R{\cf}OM{\cf}占用{\cf}、1{\cf}KB{\cf} R{\cf}AM{\cf}占用。
 
 \subsubsection{内核对象系统}
-实时线程操作系统内部采用面向对象的方式设计，内建内核对象管理系统，能够访问/管理所有内核对象。内核对象包含了内核中绝大部分设施，而这些内核对象可 以是静态分配的静态对象，也可以是从系统内存堆中分配的动态对象。通过内核对象系统，RT-Thread可以做到不依赖于具体的内存分配方式，伸缩性得到 极大的加强。
+实{\cf}时线{\cf}程操{\cf}作系{\cf}统内{\cf}部采{\cf}用面{\cf}向对{\cf}象的{\cf}方式{\cf}设计{\cf}，内{\cf}建内{\cf}核对{\cf}象管{\cf}理系{\cf}统，{\cf}能够{\cf}访问{\cf}/管{\cf}理所{\cf}有内{\cf}核对{\cf}象。{\cf}内核{\cf}对象{\cf}包含{\cf}了内{\cf}核中{\cf}绝大{\cf}部分{\cf}设施{\cf}，而{\cf}这些{\cf}内核{\cf}对象{\cf}可 {\cf}以是{\cf}静态{\cf}分配{\cf}的静{\cf}态对{\cf}象，{\cf}也可{\cf}以是{\cf}从系{\cf}统内{\cf}存堆{\cf}中分{\cf}配的{\cf}动态{\cf}对象{\cf}。通{\cf}过内{\cf}核对{\cf}象系{\cf}统，{\cf}RT{\cf}-T{\cf}hr{\cf}ea{\cf}d可{\cf}以做{\cf}到不{\cf}依赖{\cf}于具{\cf}体的{\cf}内存{\cf}分配{\cf}方式{\cf}，伸{\cf}缩性{\cf}得到{\cf} 极{\cf}大的{\cf}加强\citeup{qiuwei2007}。
 
 \subsubsection{任务/线程调度}
-支持以线程为基本调度单位的多任务系统。调度算法是基于优先级的全抢占式线程调度，支持256个线程优先级（亦可配置成32个线程优先级），0优先级代表 最高优先级，255优先级留给空闲线程使用；相同优先级上支持多个线程，这些相同优先级的线程采用可设置时间片长度的时间片轮转调度；调度器寻找下一个最 高优先级就绪线程的时间是恒定的(O(1))。系统不限制线程数量的多少，只与物理平台的具体内存相关。
+支{\cf}持以{\cf}线程{\cf}为基{\cf}本调{\cf}度单{\cf}位的{\cf}多任{\cf}务系{\cf}统。{\cf}调度{\cf}算法{\cf}是基{\cf}于优{\cf}先级{\cf}的全{\cf}抢占{\cf}式线{\cf}程调{\cf}度，{\cf}支持{\cf}25{\cf}6个{\cf}线程{\cf}优先{\cf}级（{\cf}亦可{\cf}配置{\cf}成3{\cf}2个{\cf}线程{\cf}优先{\cf}级）{\cf}，0{\cf}优先{\cf}级代{\cf}表 {\cf}最高{\cf}优先{\cf}级，{\cf}25{\cf}5优{\cf}先级{\cf}留给{\cf}空闲{\cf}线程{\cf}使用{\cf}；相{\cf}同优{\cf}先级{\cf}上支{\cf}持多{\cf}个线{\cf}程，{\cf}这些{\cf}相同{\cf}优先{\cf}级的{\cf}线程{\cf}采用{\cf}可设{\cf}置时{\cf}间片{\cf}长度{\cf}的时{\cf}间片{\cf}轮转{\cf}调度{\cf}；调{\cf}度器{\cf}寻找{\cf}下一{\cf}个最{\cf} 高{\cf}优先{\cf}级就{\cf}绪线{\cf}程的{\cf}时间{\cf}是恒{\cf}定的{\cf}(O{\cf}(1{\cf})){\cf}。系{\cf}统不{\cf}限制{\cf}线程{\cf}数量{\cf}的多{\cf}少，{\cf}只与{\cf}物理{\cf}平台{\cf}的具{\cf}体内{\cf}存相关\citeup{qiuwei2007}。
 
 \subsubsection{同步机制}
-系统支持semaphore，mutex等线程间同步机制。mutex采用优先级继存方式以防止优先级翻转。semaphore释放动作可安全用于中断服 务例程中。同步机制支持线程按优先级等待或按先进先出方式获取信号量或互斥锁。
+系{\cf}统支{\cf}持s{\cf}em{\cf}ap{\cf}ho{\cf}re{\cf}，m{\cf}ut{\cf}ex{\cf}等线{\cf}程间{\cf}同步{\cf}机制{\cf}。m{\cf}ut{\cf}ex{\cf}采用{\cf}优先{\cf}级继{\cf}存方{\cf}式以{\cf}防止{\cf}优先{\cf}级翻{\cf}转。{\cf}se{\cf}ma{\cf}ph{\cf}or{\cf}e释{\cf}放动{\cf}作可{\cf}安全{\cf}用于{\cf}中断{\cf}服 {\cf}务例{\cf}程中{\cf}。同{\cf}步机{\cf}制支{\cf}持线{\cf}程按{\cf}优先{\cf}级等{\cf}待或{\cf}按先{\cf}进先{\cf}出方{\cf}式获{\cf}取信{\cf}号量{\cf}或互{\cf}斥锁\citeup{qiuwei2007}。
 
 \subsubsection{通信机制}
-系统支持event，mailbox，message queue通信机制等。event支持多事件"或触发"及"与触发"，适合于线程等待多个事件情况。mailbox中一个mail的长度固定为4字节，效率较messagequeu高。通信设施中的发送动作可安全用于中断服务例程中。通信机制支持线程按优先级等待或按先进先出方式获取。
+系{\cf}统支{\cf}持e{\cf}ve{\cf}nt{\cf}，m{\cf}ai{\cf}lb{\cf}ox{\cf}，m{\cf}es{\cf}sa{\cf}ge{\cf} q{\cf}ue{\cf}ue{\cf}通信{\cf}机制{\cf}等。{\cf}ev{\cf}en{\cf}t支{\cf}持多{\cf}事件{\cf}"或{\cf}触发{\cf}"及{\cf}"与{\cf}触发{\cf}"，{\cf}适合{\cf}于线{\cf}程等{\cf}待多{\cf}个事{\cf}件情{\cf}况。{\cf}ma{\cf}il{\cf}bo{\cf}x中{\cf}一个{\cf}ma{\cf}il{\cf}的长{\cf}度固{\cf}定为{\cf}4字{\cf}节，{\cf}效率{\cf}较m{\cf}es{\cf}sa{\cf}ge{\cf}qu{\cf}eu{\cf}高。{\cf}通信{\cf}设施{\cf}中的{\cf}发送{\cf}动作{\cf}可安{\cf}全用{\cf}于中{\cf}断服{\cf}务例{\cf}程中{\cf}。通{\cf}信机{\cf}制支{\cf}持线{\cf}程按{\cf}优先{\cf}级等{\cf}待或{\cf}按先{\cf}进先{\cf}出方{\cf}式获{\cf}取\citeup{qiuwei2007}。
 
 \subsubsection{时钟/定时器}
-系统默认使用时钟节拍来完成同优先级任务的时间片轮转调度；线程对内核对象的时间敏感性是通过系统定时器来实现的；定时器又分成了硬定时器和软定时器，一 次定时及周期性定时。
+系{\cf}统默{\cf}认使{\cf}用时{\cf}钟节{\cf}拍来{\cf}完成{\cf}同优{\cf}先级{\cf}任务{\cf}的时{\cf}间片{\cf}轮转{\cf}调度{\cf}；线{\cf}程对{\cf}内核{\cf}对象{\cf}的时{\cf}间敏{\cf}感性{\cf}是通{\cf}过系{\cf}统定{\cf}时器{\cf}来实{\cf}现的{\cf}；定{\cf}时器{\cf}又分{\cf}成了{\cf}硬定{\cf}时器{\cf}和软{\cf}定时{\cf}器，{\cf}一 {\cf}次定{\cf}时及{\cf}周期{\cf}性定{\cf}时\citeup{qiuwei2007}。
 
 \subsubsection{内存管理}
-系统支持静态内存池管理及动态内存堆管理。从静态内存池中获取/释放内存块时间恒定，而当内存池空时，可根据申请线程请求把申请线程挂起、立刻返回、或等 待一段时间仍未获得返回。当其他线程释内存块到内存池时，将把挂起的线程唤醒。对于系统内存紧张的系统，RT-Thread也提供了小型的伙伴内存管理算 法。而对于拥有大一些内存的嵌入式系统，RT-Thread提供了性能非常高效的SLAB内存管理系统。
+系{\cf}统支{\cf}持静{\cf}态内{\cf}存池{\cf}管理{\cf}及动{\cf}态内{\cf}存堆{\cf}管理{\cf}。从{\cf}静态{\cf}内存{\cf}池中{\cf}获取{\cf}/释{\cf}放内{\cf}存块{\cf}时间{\cf}恒定{\cf}，而{\cf}当内{\cf}存池{\cf}空时{\cf}，可{\cf}根据{\cf}申请{\cf}线程{\cf}请求{\cf}把申{\cf}请线{\cf}程挂{\cf}起、{\cf}立刻{\cf}返回{\cf}、或{\cf}等 {\cf}待一{\cf}段时{\cf}间仍{\cf}未获{\cf}得返{\cf}回。{\cf}当其{\cf}他线{\cf}程释{\cf}内存{\cf}块到{\cf}内存{\cf}池时{\cf}，将{\cf}把挂{\cf}起的{\cf}线程{\cf}唤醒{\cf}。对{\cf}于系{\cf}统内{\cf}存紧{\cf}张的{\cf}系统{\cf}，R{\cf}T-{\cf}Th{\cf}re{\cf}ad{\cf}也提{\cf}供了{\cf}小型{\cf}的伙{\cf}伴内{\cf}存管{\cf}理算{\cf} 法{\cf}。而{\cf}对于{\cf}拥有{\cf}大一{\cf}些内{\cf}存的{\cf}嵌入{\cf}式系{\cf}统，{\cf}RT{\cf}-T{\cf}hr{\cf}ea{\cf}d提{\cf}供了{\cf}性能{\cf}非常{\cf}高效{\cf}的S{\cf}LA{\cf}B内{\cf}存管{\cf}理系{\cf}统\citeup{qiuwei2007,jinxin2014}。
 
 \subsubsection{诊断}
-通过系统提供的FinSH shell系统，能够查看到线程，信号量，互斥锁，事件，邮箱，消息队列的运行情况，以及各个线程的栈使用情况。
+通{\cf}过系{\cf}统提{\cf}供的{\cf}Fi{\cf}nS{\cf}H {\cf}sh{\cf}el{\cf}l系{\cf}统，{\cf}能够{\cf}查看{\cf}到线{\cf}程，{\cf}信号{\cf}量，{\cf}互斥{\cf}锁，{\cf}事件{\cf}，邮{\cf}箱，{\cf}消息{\cf}队列{\cf}的运{\cf}行情{\cf}况，{\cf}以及{\cf}各个{\cf}线程{\cf}的栈{\cf}使用{\cf}情况\citeup{qiuwei2007,yangzeming2014}。
 
 \subsection{RT-Thread在STM32上的移植与配置}
-ARM{\reg} Cortex{\reg}-M3微处理器可以说是和ARM7TDMI微处理器完全不同的体系结构，在进行RT-Thread移植时首先需要把线程的上下文切换移植好。通常的ARM移植，RT-Thread需要手动的保存当前模式下几乎所有寄存器，R0 – R13，LR，PC，CPSR，SPSR等。在Cortex{\reg}-M3微处理器中，则不需要保存全部的寄存器到栈中，因为当一个异常触发时，Cortex{\reg}-M3硬件能够自动的完成部分的寄存器保存。
+ARM{\reg} Cortex{\reg}-M3微{\cf}处理{\cf}器可{\cf}以说{\cf}是和{\cf}AR{\cf}M7{\cf}TD{\cf}MI{\cf}微处{\cf}理器{\cf}完全{\cf}不同{\cf}的体{\cf}系结{\cf}构，{\cf}在进{\cf}行R{\cf}T-{\cf}Th{\cf}re{\cf}ad{\cf}移植{\cf}时首{\cf}先需{\cf}要把{\cf}线程{\cf}的上{\cf}下文{\cf}切换{\cf}移植好。通常的ARM移植，RT-Thread需要手动的保存当前模式下几乎所有寄存器，R0 – R13，LR，PC，CPSR，SPSR等。在Cortex{\reg}-M3微处理器中，则不需要保存全部的寄存器到栈中，因为当一个异常触发时，Cortex{\reg}-M3硬件能够自动的完成部分的寄存器保存。
 
-当要进行切换时（假设从Thread [from] 切换到Thread [to]），通过 rt{\_}hw{\_}context{\_}switch 函数触发一个PenSV异常。异常产生时，Cortex{\reg}-M3会把PSR，PC，LR，R0 – R3，R12自动压入当前线程的栈中，然后切换到PenSV异常处理。到PenSV异常后，Cortex{\reg}-M3工作模式切换到Handler模式，由函数rt{\_}hw{\_}pend{\_}sv进行处理。rt{\_}hw{\_}pend{\_}sv函数会载入切换出线程和切换到线程的栈指针，如果切换出线程的栈指针是0那么表示这是第一次线程上下文切换，不需要对切换出线程做压栈动作。如果切换出线程栈指针非零，则把剩余未压栈的R4 – R11寄存器依次压栈；然后从切换到线程栈中恢复R4 – R11寄存器。当从PendSV异常返回时，PSR，PC，LR，R0 – R3，R12等寄存器由Cortex{\reg} M3自动恢复。
+当要进行切换时（假设从Thread [from] 切换到Thread [to]），通过 rt{\_}hw{\_}context{\_}switch 函数触发一个PenSV异常。异常产生时，Cortex{\reg}-M3会把PSR，PC，LR，R0 – R3，R12自动压入当前线程的栈中，然后切换到PenSV异常处理。到PenSV异常后，Cortex{\reg}-M3工作模式切换到Handler模式，由函数rt{\_}hw{\_}pend{\_}sv进行处理。rt{\_}hw{\_}pend{\_}sv函{\cf}数会{\cf}载入{\cf}切换{\cf}出线{\cf}程和{\cf}切换{\cf}到线{\cf}程的{\cf}栈指{\cf}针，{\cf}如果{\cf}切换{\cf}出线{\cf}程的{\cf}栈指{\cf}针是{\cf}0那{\cf}么表{\cf}示这{\cf}是第{\cf}一次{\cf}线程{\cf}上下{\cf}文切{\cf}换，{\cf}不需{\cf}要对{\cf}切换{\cf}出线{\cf}程做{\cf}压栈{\cf}动作{\cf}。如{\cf}果切{\cf}换出{\cf}线程{\cf}栈指{\cf}针非{\cf}零，{\cf}则把{\cf}剩余{\cf}未压{\cf}栈的{\cf}R4{\cf} –{\cf} R{\cf}11{\cf}寄存{\cf}器依{\cf}次压{\cf}栈；{\cf}然后{\cf}从切{\cf}换到{\cf}线程{\cf}栈中{\cf}恢复{\cf}R4{\cf} –{\cf} R{\cf}11{\cf}寄存{\cf}器。{\cf}当从{\cf}Pe{\cf}nd{\cf}SV{\cf}异常{\cf}返回{\cf}时，{\cf}PS{\cf}R，{\cf}PC{\cf}，L{\cf}R，{\cf}R0{\cf} –{\cf} R{\cf}3，{\cf}R1{\cf}2等{\cf}寄存{\cf}器由Cortex{\reg} M3自动恢复。
 
-当中断达到时，当前线程会被中断并把PC，PSR，R0 – R3，R12等压到当前线程栈中，工作模式切换到Handler模式。在运行中断服务例程期间， 如果发生了线程切换（调用rt{\_}schedule）， 会先判断当前工作模式是否是Handler模式（依赖于全局变量rt{\_}interrupt{\_}nest）， 如果是则调用rt{\_}hw{\_}context{\_}switch{\_}interrupt函数进行伪切换：
+当{\cf}中断{\cf}达到{\cf}时，{\cf}当前{\cf}线程{\cf}会被{\cf}中断{\cf}并把{\cf}PC{\cf}，P{\cf}SR{\cf}，R{\cf}0 {\cf}– {\cf}R3{\cf}，R{\cf}12{\cf}等压{\cf}到当{\cf}前线{\cf}程栈{\cf}中，{\cf}工作{\cf}模式{\cf}切换{\cf}到H{\cf}an{\cf}dl{\cf}er{\cf}模式{\cf}。在{\cf}运行{\cf}中断{\cf}服务{\cf}例程{\cf}期间{\cf}， {\cf}如果{\cf}发生{\cf}了线{\cf}程切换（调用rt{\_}schedule）， 会先{\cf}判断{\cf}当前{\cf}工作{\cf}模式{\cf}是否{\cf}是H{\cf}an{\cf}dl{\cf}er{\cf}模式{\cf}（依{\cf}赖于{\cf}全局{\cf}变量rt{\_}interrupt{\_}nest）， 如{\cf}果是{\cf}则调{\cf}用rt{\_}hw{\_}context{\_}switch{\_}interrupt函数进行伪切换\citeup{liangzhiyong2010}：
 
-在rt{\_}hw{\_}context{\_}switch{\_}interrupt函数中， 将把当前线程栈指针赋值到 rt{\_}interrupt{\_}from{\_}thread 变量上， 把要切换过去的线程栈指针赋值到 rt{\_}interrupt{\_}to{\_}thread 变量上， 并设置中断中线程切换标志 rt thread{\_}switch{\_}interrput{\_}flag 为1。
+在rt{\_}hw{\_}context{\_}switch{\_}interrupt函{\cf}数中{\cf}， {\cf}将把{\cf}当前{\cf}线程{\cf}栈指{\cf}针赋{\cf}值到 rt{\_}interrupt{\_}from{\_}thread 变{\cf}量上{\cf}， {\cf}把要{\cf}切换{\cf}过去{\cf}的线{\cf}程栈{\cf}指针{\cf}赋值{\cf}到 rt{\_}interrupt{\_}to{\_}thread 变{\cf}量上{\cf}， {\cf}并设{\cf}置中{\cf}断中{\cf}线程{\cf}切换{\cf}标志{\cf} rt thread{\_}switch{\_}interrput{\_}flag 为1。
 
-在最后一个中断服务例程结束时，Cortex{\reg}-M3将去处理PendSV异常，因为PendSV异常的优先级是最低的，所以只有触发过PendSV异常，它将总是在最后进行处理。
+在{\cf}最后{\cf}一个{\cf}中断{\cf}服务{\cf}例程{\cf}结束{\cf}时，Cortex{\reg}-M3将{\cf}去处{\cf}理P{\cf}en{\cf}dS{\cf}V异{\cf}常，{\cf}因为{\cf}Pe{\cf}nd{\cf}SV{\cf}异常{\cf}的优{\cf}先级{\cf}是最{\cf}低的{\cf}，所{\cf}以只{\cf}有触{\cf}发过{\cf}Pe{\cf}nd{\cf}SV{\cf}异常{\cf}，它{\cf}将总{\cf}是在{\cf}最后{\cf}进行{\cf}处理\citeup{liming2014}。
 
 这里就不进一步详细讨论RT-Thread在STM32上的移植了。事实上，RT-Thread开发组已经做了好STM32系列微控制器的大部分移植工作，从官网下载源码后作简单修改即可完成符合自身硬件的移植工作。
 
@@ -179,7 +179,7 @@ Visual C{\#}常用的工具都是以控件的方式集成在开发包当中，�
 \subsection{数据库管理层}
 数据库管理层主要负责语音呼叫终端的参数、病房信息、病员信息、用药信息等数据的存储，以及以上信息的检索与重定位。
 
-SQL提供了非常丰富的语句对数据库进行查询、排序、增加、删除等操作，因此数据库管理层的代码量也非常庞大，限于篇幅，这里仅给出基本SQL操作语句的C{\#}代码作为示例。\\
+SQL提供了非常丰富的语句对数据库进行查询、排序、增加、删除等操作，因此数据库管理层的代码量也非常庞大，限于篇幅，这里仅给出基本SQL操作语句的C{\#}代码作为示例\citeup{zhangzhen2011}。\\
 \input{chapters/sql.cs.tex}
 
 \subsection{图形化用户界面}

@@ -23,10 +23,10 @@
 \hllin{21\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwa{return\ }\hlstd{sqlCon}\hlopt{;}\\
 \hllin{22\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlopt{\}}\\
 \hllin{23\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ $<$summary$>$}\\
-\hllin{24\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ 执行不带参数的增删改sql语句或存储过程}\\
+\hllin{24\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ 执{\cf}行不{\cf}带参{\cf}数的{\cf}增删{\cf}改s{\cf}ql{\cf}语句{\cf}或存{\cf}储过{\cf}程}\\
 \hllin{25\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ $<$/summary$>$}\\
-\hllin{26\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ $<$param\ name="cmdText"$>$增删改sql语句或存储过程$<$/param$>$}\\
-\hllin{27\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ $<$param\ name="ct"$>$命令类型$<$/param$>$}\\
+\hllin{26\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ $<$param\ name="cmdText"$>$增{\cf}删改{\cf}sq{\cf}l语{\cf}句或{\cf}存储{\cf}过程$<$/param$>$}\\
+\hllin{27\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ $<$param\ name="ct"$>$命{\cf}令类{\cf}型$<$/param$>$}\\
 \hllin{28\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ $<$returns$>$$<$/returns$>$}\\
 \hllin{29\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{public\ }\hlstd{}\hlkwb{int\ }\hlstd{}\hlkwd{ExecuteNonQuery}\hlstd{}\hlopt{(}\hlstd{}\hlkwb{string\ }\hlstd{cmdText}\hlopt{,\ }\hlstd{CommandType\ ct}\hlopt{)}\\
 \hllin{30\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlopt{\{}\\
@@ -52,9 +52,9 @@
 \hllin{50\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwa{return\ }\hlstd{rex}\hlopt{;}\\
 \hllin{51\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlopt{\}}\\
 \hllin{52\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ $<$summary$>$}\\
-\hllin{53\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///}\hlstd{\ \ }\hlslc{执行带参数的增删改SQL语句或存储过程}\\
+\hllin{53\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///}\hlstd{\ \ }\hlslc{执{\cf}行带{\cf}参数{\cf}的增{\cf}删改{\cf}SQ{\cf}L语{\cf}句或{\cf}存储{\cf}过程}\\
 \hllin{54\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ $<$/summary$>$}\\
-\hllin{55\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ $<$param\ name="cmdText"$>$增删改SQL语句或存储过程$<$/param$>$}\\
+\hllin{55\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ $<$param\ name="cmdText"$>$增{\cf}删改{\cf}SQ{\cf}L语{\cf}句或{\cf}存储{\cf}过程$<$/param$>$}\\
 \hllin{56\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ $<$param\ name="ct"$>$命令类型$<$/param$>$}\\
 \hllin{57\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ $<$returns$>$$<$/returns$>$}\\
 \hllin{58\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{public\ }\hlstd{}\hlkwb{int\ }\hlstd{}\hlkwd{ExecuteNonQuery}\hlstd{}\hlopt{(}\hlstd{}\hlkwb{string\ }\hlstd{cmdText}\hlopt{,\ }\hlstd{SqlParameter}\hlopt{{[}{]}\ }\hlstd{paras}\hlopt{,\ }\hlstd{CommandType\ ct}\hlopt{)}\\
@@ -69,11 +69,11 @@
 \hllin{67\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwa{return\ }\hlstd{res}\hlopt{;}\\
 \hllin{68\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlopt{\}}\\
 \hllin{69\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ $<$summary$>$}\\
-\hllin{70\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///}\hlstd{\ \ }\hlslc{执行带参数的查询SQL语句或存储过程}\\
+\hllin{70\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///}\hlstd{\ \ }\hlslc{执{\cf}行带{\cf}参数{\cf}的查{\cf}询S{\cf}QL{\cf}语句{\cf}或存{\cf}储过{\cf}程}\\
 \hllin{71\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ $<$/summary$>$}\\
-\hllin{72\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ $<$param\ name="cmdText"$>$查询SQL语句或存储过程$<$/param$>$}\\
-\hllin{73\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ $<$param\ name="paras"$>$参数集合$<$/param$>$}\\
-\hllin{74\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ $<$param\ name="ct"$>$命令类型$<$/param$>$}\\
+\hllin{72\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ $<$param\ name="cmdText"$>$查{\cf}询S{\cf}QL{\cf}语句{\cf}或存{\cf}储过{\cf}程$<$/param$>$}\\
+\hllin{73\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ $<$param\ name="paras"$>$参{\cf}数集{\cf}合$<$/param$>$}\\
+\hllin{74\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ $<$param\ name="ct"$>$命{\cf}令类{\cf}型$<$/param$>$}\\
 \hllin{75\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ $<$returns$>$$<$/returns$>$}\\
 \hllin{76\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{public\ }\hlstd{DataTable\ }\hlkwd{ExecuteQuery}\hlstd{}\hlopt{(}\hlstd{}\hlkwb{string\ }\hlstd{cmdText}\hlopt{,\ }\hlstd{SqlParameter}\hlopt{{[}{]}\ }\hlstd{paras}\hlopt{,\ }\hlstd{CommandType\ ct}\hlopt{)}\\
 \hllin{77\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlopt{\{}\\
@@ -88,10 +88,10 @@
 \hllin{86\ }\hlstd{}\hlstd{\ \ \ \ \ \ \ \ }\hlstd{}\hlkwa{return\ }\hlstd{dt}\hlopt{;}\\
 \hllin{87\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlopt{\}}\\
 \hllin{88\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ $<$summary$>$}\\
-\hllin{89\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ 执行不带参数的查询SQL语句或存储过程}\\
+\hllin{89\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ 执{\cf}行不{\cf}带参{\cf}数的{\cf}查询{\cf}SQ{\cf}L语{\cf}句或{\cf}存储{\cf}过程}\\
 \hllin{90\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ $<$/summary$>$}\\
-\hllin{91\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ $<$param\ name="cmdText"$>$查询SQL语句或存储过程$<$/param$>$}\\
-\hllin{92\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ $<$param\ name="ct"$>$命令类型$<$/param$>$}\\
+\hllin{91\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ $<$param\ name="cmdText"$>$查{\cf}询S{\cf}QL{\cf}语句{\cf}或存{\cf}储过{\cf}程$<$/param$>$}\\
+\hllin{92\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ $<$param\ name="ct"$>$命{\cf}令类{\cf}型$<$/param$>$}\\
 \hllin{93\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlslc{///\ $<$returns$>$$<$/returns$>$}\\
 \hllin{94\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlkwa{public\ }\hlstd{DataTable\ }\hlkwd{ExecuteQuery}\hlstd{}\hlopt{(}\hlstd{}\hlkwb{string\ }\hlstd{cmdText}\hlopt{,\ }\hlstd{CommandType\ ct}\hlopt{)}\\
 \hllin{95\ }\hlstd{}\hlstd{\ \ \ \ }\hlstd{}\hlopt{\{}\\

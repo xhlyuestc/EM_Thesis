@@ -42,7 +42,7 @@
 \renewcommand{\ttfamily}{\CTEX@save@ttfamily \CJKfamily {\CTEX@rm@family }}
 \RequirePackage{etoolbox}[2011/01/03]
 \RequirePackage{ifthen}
-\newcommand{\cf}{{\fontsize{0.01pt}{\baselineskip}\selectfont .}}
+\newcommand{\cf}{{\fontsize{0.01pt}{\baselineskip}\selectfont 艹}}
 
 \newcommand{\bachelor@uestcthesis}{
 \newcommand{\degree@uestcthesis}{bachelor}
