@@ -14,10 +14,9 @@ del /S *.ist 2>nul
 del /S *.idx 2>nul
 del /S *.ilg 2>nul
 del /S *.ind 2>nul
-del /S logo.* 2>nul
-del /S *.log 2>nul
 del /S *.acn 2>nul
 del /S *.acr 2>nul
 del /S *.lof 2>nul
 del /S *.lot 2>nul
 del /S *.alg 2>nul
+del /S *.glsdefs 2>nul
