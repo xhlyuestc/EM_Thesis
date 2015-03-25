@@ -25,16 +25,16 @@ STM32{\cf}系列{\cf}嵌入{\cf}式微{\cf}控制{\cf}器按{\cf}性能{\cf}分�
 \pic[htbp]{语音输入电路原理图}{width=0.9\textwidth}{mic.pdf}
 
 \section{语音输出电路}
-对方用户端采集和处理后的数字语音信号通过网络实时传输到接收端，接收端的STM32微控制器则将语音数据流通过其片内的DAC（\newacronym[description=数模转换器]{DAC}{DAC}{Digital-Analog Converter}\acrlong{DAC}， 数字模拟转换器））按特定的速率转换为模拟语音电信号，再经过低通滤波去除高频数字噪声、功率放大后驱动扬声器还原成声音。语音功放芯片带有使能引脚SHTN，接高电平时正常工作，接低电平时停止工作，消耗极小的电流。STM32微控制器通过PB1引脚控制其工作状态，待机时关闭语音功放，语音通话时开启语音功放。
+对方用户端采集和处理后的数字语音信号通过网络实时传输到接收端，接收端的STM32微控制器则将语音数据流通过其片内的DAC（\newacronym[description=数模转换器]{DAC}{DAC}{Digital-Analog Converter}\acrlong{DAC}， 数字模拟转换器））按特定的速率转换为模拟语音电信号，再经过低通滤波去除高频数字噪声、功率放大后驱动扬声器还原成声音。语音输出电路如图~\ref{speaker.pdf}所示，语音功放芯片带有使能引脚SHTN，接高电平时正常工作，接低电平时停止工作，消耗极小的电流。STM32微控制器通过PB1引脚控制其工作状态，待机时关闭语音功放，语音通话时开启语音功放。
 \pic[htbp]{语音输出电路原理图}{width=0.8\textwidth}{speaker.pdf}
 
 \section{\acrshort{WiFi}模块电路}
-\acrshort{WiFi}模块WM-G-MR-08外围电路也比较简单，主要包括天线匹配电路、接收低噪声放大器（\newacronym[description=低噪声放大器]{LNA}{LNA}{Low Noise Amplifier}\acrlong{LNA}, \acrshort{LNA}）的自动增益控制（\newacronym[description=自动增益控制]{AGC}{AGC}{Automatic Gain Control}\acrlong{AGC}, \acrshort{AGC}）设置。\acrshort{WiFi}模块通过\newacronym[description=安全数字输入输出]{SDIO}{SDIO}{Secure Digital Input and Output}
+\acrshort{WiFi}模块电路如图~\ref{wifi.pdf}所示，\acrshort{WiFi}模块WM-G-MR-08外围电路也比较简单，主要包括天线匹配电路、接收低噪声放大器（\newacronym[description=低噪声放大器]{LNA}{LNA}{Low Noise Amplifier}\acrlong{LNA}, \acrshort{LNA}）的自动增益控制（\newacronym[description=自动增益控制]{AGC}{AGC}{Automatic Gain Control}\acrlong{AGC}, \acrshort{AGC}）设置。\acrshort{WiFi}模块通过\newacronym[description=安全数字输入输出]{SDIO}{SDIO}{Secure Digital Input and Output}
 \acrshort{SDIO}（\acrlong{SDIO}，安全数字输入输出）接口与STM32微控制器通信，SDIO{\_}CMD为命令信号，SDIO{\_}CK为时钟信号，SDIO{\_}D[3：0]为数据信号。为降低功耗，\acrshort{WiFi}模块也有掉电控制引脚PDn，低电平时模块进入掉电模式，耗电极低，高电平时模块进入工作模式。由STM32微控制器的PB5引脚控制\acrshort{WiFi}模块掉电或工作。
 \pic[htbp]{\acrshort{WiFi}模块电路原理图}{width=0.8\textwidth}{wifi.pdf}
 
 \section{呼叫按钮与掉电管理电路}\label{sec:butn_pdwn}
-考虑到病房语音呼叫的特殊性，系统硬件一般情况下使用外部直流电源供电，遇到停电等特殊情况时使用内部电池作为后备电源。为尽量降低功耗，延长电池寿命，使用PCF8563作为定时掉电管理芯片。常态下系统电源关闭，在三种情况下系统会被唤醒：（1）PCF8563经过程序预定的时间后输出一唤醒信号（类似于关机闹钟）；（2）语音呼叫按钮被按下；（3）防破坏拆除按钮被断开。任何一种情况都会使系统电源开启，STM32微控制器上电。STM32开始工作后首先判断唤醒原因并执行不同的程序：（1）定时唤醒，使能\acrshort{WiFi}模块，尝试向服务器发送心跳数据包表明自己工作正常并判断网络是否通畅；（2）语音呼叫按钮S2被按下，定时唤醒，使能\acrshort{WiFi}模块，尝试向服务器发送语音呼叫请求；（3）防破坏拆除按钮S1被断开，说明设备被人为破坏，警报音响起，同时使能\acrshort{WiFi}模块，尝试向服务器发送报警数据包。
+考虑到病房语音呼叫的特殊性，系统硬件一般情况下使用外部直流电源供电，遇到停电等特殊情况时使用内部电池作为后备电源。为尽量降低功耗，延长电池寿命，使用PCF8563作为定时掉电管理芯片。呼叫按钮与掉电管理电路如图~\ref{pcf8563.pdf}所示，常态下系统电源关闭，在三种情况下系统会被唤醒：（1）PCF8563经过程序预定的时间后输出一唤醒信号（类似于关机闹钟）；（2）语音呼叫按钮被按下；（3）防破坏拆除按钮被断开。任何一种情况都会使系统电源开启，STM32微控制器上电。STM32开始工作后首先判断唤醒原因并执行不同的程序：（1）定时唤醒，使能\acrshort{WiFi}模块，尝试向服务器发送心跳数据包表明自己工作正常并判断网络是否通畅；（2）语音呼叫按钮S2被按下，定时唤醒，使能\acrshort{WiFi}模块，尝试向服务器发送语音呼叫请求；（3）防破坏拆除按钮S1被断开，说明设备被人为破坏，警报音响起，同时使能\acrshort{WiFi}模块，尝试向服务器发送报警数据包。
 \pic[htbp]{呼叫按钮与掉电管理电路原理图}{width=0.6\textwidth}{pcf8563.pdf}
 
 \section{系统硬件的PCB版图}

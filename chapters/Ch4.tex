@@ -7,9 +7,9 @@
 
 \section{系统嵌入式软件的设计与实现}
 \subsection{RT-Thread嵌入式实时操作系统简介}
-RT-Thread是一个开放源代码的实时操作系统，并且商业许可证非常宽松的实时操作系统。图~\ref{rtt.png}是RT-Thread及外围组件的基本框架图。
+RT-Thread是一个开放源代码的实时操作系统，并且商业许可证非常宽松的实时操作系统。图~\ref{rtt.png}是RT-Thread及外围组件的基本框架图\footnotetext{图取自《RT-Thread实时操作系统编程指南0.3.0》P25}。
 \pic[htbp]{RT-Thread及外围组件基本框架\protect\footnotemark}{}{rtt.png}
-\footnotetext{图取自《RT-Thread实时操作系统编程指南0.3.0》P25}
+
 
 RT-Thread Kernel内{\cf}核部{\cf}分包{\cf}括了{\cf}RT{\cf}-T{\cf}hr{\cf}ea{\cf}d的{\cf}核心{\cf}代码{\cf}，包{\cf}括对{\cf}象管{\cf}理器{\cf}，线{\cf}程管{\cf}理及{\cf}调度{\cf}，线{\cf}程间{\cf}通信{\cf}等的{\cf}微小{\cf}内核{\cf}实现{\cf}（最{\cf}小能{\cf}够到{\cf}达4{\cf}k {\cf}RO{\cf}M，{\cf}1k{\cf} R{\cf}AM{\cf}体积{\cf}占用{\cf}）。{\cf}内核{\cf}库是{\cf}为了{\cf}保证{\cf}内核{\cf}能够{\cf}独立{\cf}运作{\cf}的一{\cf}套小{\cf}型类{\cf}似C{\cf}库实{\cf}现（{\cf}这部{\cf}分根{\cf}据编{\cf}译器{\cf}自带{\cf}C库{\cf}的情{\cf}况会{\cf}有些{\cf}不同{\cf}，使{\cf}用G{\cf}CC{\cf}编译{\cf}器时{\cf}，携{\cf}带更{\cf}多的{\cf}标准{\cf}C库{\cf}实现{\cf}）。{\cf}CP{\cf}U及{\cf}板级{\cf}支持{\cf}包包{\cf}含了{\cf}RT{\cf}-T{\cf}hr{\cf}ea{\cf}d支{\cf}持的{\cf}各个{\cf}平台{\cf}移植{\cf}代码{\cf}，通{\cf}常会{\cf}包含{\cf}两个{\cf}汇编{\cf}文件{\cf}，一{\cf}个是{\cf}系统{\cf}启动{\cf}初始{\cf}化文{\cf}件，{\cf}一个{\cf}是线{\cf}程进{\cf}行上{\cf}下文{\cf}切换{\cf}的文{\cf}件，{\cf}其他{\cf}的都{\cf}是C{\cf}源文{\cf}件。
 
@@ -36,21 +36,22 @@ RT-Thread实{\cf}时操{\cf}作系{\cf}统核{\cf}心是{\cf}一个{\cf}高效{\
 \subsubsection{诊断}
 通{\cf}过系{\cf}统提{\cf}供的{\cf}Fi{\cf}nS{\cf}H {\cf}sh{\cf}el{\cf}l系{\cf}统，{\cf}能够{\cf}查看{\cf}到线{\cf}程，{\cf}信号{\cf}量，{\cf}互斥{\cf}锁，{\cf}事件{\cf}，邮{\cf}箱，{\cf}消息{\cf}队列{\cf}的运{\cf}行情{\cf}况，{\cf}以及{\cf}各个{\cf}线程{\cf}的栈{\cf}使用{\cf}情况\citeup{qiuwei2007,yangzeming2014}。
 
+%\enlargethispage{3\baselineskip}
 \subsection{RT-Thread在STM32上的移植与配置}
-ARM{\reg} Cortex{\reg}-M3微{\cf}处理{\cf}器可{\cf}以说{\cf}是和{\cf}AR{\cf}M7{\cf}TD{\cf}MI{\cf}微处{\cf}理器{\cf}完全{\cf}不同{\cf}的体{\cf}系结{\cf}构，{\cf}在进{\cf}行R{\cf}T-{\cf}Th{\cf}re{\cf}ad{\cf}移植{\cf}时首{\cf}先需{\cf}要把{\cf}线程{\cf}的上{\cf}下文{\cf}切换{\cf}移植好。通常的ARM移植，RT-Thread需要手动的保存当前模式下几乎所有寄存器，R0 – R13，LR，PC，CPSR，SPSR等。在Cortex{\reg}-M3微处理器中，则不需要保存全部的寄存器到栈中，因为当一个异常触发时，Cortex{\reg}-M3硬件能够自动的完成部分的寄存器保存。
+ARM{\reg} Cortex{\reg}-M3微{\cf}处理{\cf}器可{\cf}以说{\cf}是和{\cf}AR{\cf}M7{\cf}TD{\cf}MI{\cf}微处{\cf}理器{\cf}完全{\cf}不同{\cf}的体{\cf}系结{\cf}构，{\cf}在进{\cf}行R{\cf}T-{\cf}Th{\cf}re{\cf}ad{\cf}移植{\cf}时首{\cf}先需{\cf}要把{\cf}线程{\cf}的上{\cf}下文{\cf}切换{\cf}移植好。通常的ARM\newpage{}\noindent{}移植，RT-Thread需要手动的保存当前模式下几乎所有寄存器，R0 – R13，LR，PC，CPSR，SPSR等。在Cortex{\reg}-M3微处理器中，则不需要保存全部的寄存器到栈中，因为当一个异常触发时，Cortex{\reg}-M3硬件能够自动的完成部分的寄存器保存。
 
-当要进行切换时（假设从Thread [from] 切换到Thread [to]），通过 rt{\_}hw{\_}context{\_}switch 函数触发一个PenSV异常。异常产生时，Cortex{\reg}-M3会把PSR，PC，LR，R0 – R3，R12自动压入当前线程的栈中，然后切换到PenSV异常处理。到PenSV异常后，Cortex{\reg}-M3工作模式切换到Handler模式，由函数rt{\_}hw{\_}pend{\_}sv进行处理。rt{\_}hw{\_}pend{\_}sv函{\cf}数会{\cf}载入{\cf}切换{\cf}出线{\cf}程和{\cf}切换{\cf}到线{\cf}程的{\cf}栈指{\cf}针，{\cf}如果{\cf}切换{\cf}出线{\cf}程的{\cf}栈指{\cf}针是{\cf}0那{\cf}么表{\cf}示这{\cf}是第{\cf}一次{\cf}线程{\cf}上下{\cf}文切{\cf}换，{\cf}不需{\cf}要对{\cf}切换{\cf}出线{\cf}程做{\cf}压栈{\cf}动作{\cf}。如{\cf}果切{\cf}换出{\cf}线程{\cf}栈指{\cf}针非{\cf}零，{\cf}则把{\cf}剩余{\cf}未压{\cf}栈的{\cf}R4{\cf} –{\cf} R{\cf}11{\cf}寄存{\cf}器依{\cf}次压{\cf}栈；{\cf}然后{\cf}从切{\cf}换到{\cf}线程{\cf}栈中{\cf}恢复{\cf}R4{\cf} –{\cf} R{\cf}11{\cf}寄存{\cf}器。{\cf}当从{\cf}Pe{\cf}nd{\cf}SV{\cf}异常{\cf}返回{\cf}时，{\cf}PS{\cf}R，{\cf}PC{\cf}，L{\cf}R，{\cf}R0{\cf} –{\cf} R{\cf}3，{\cf}R1{\cf}2等{\cf}寄存{\cf}器由Cortex{\reg} M3自动恢复。
+当要进行切换时（假设从Thread [from] 切换到Thread [to]），通过~rt{\_}hw{\_}context~{\_}switch~函数触发一个PenSV异常。异常产生时，Cortex{\reg}-M3会把PSR，PC，LR，R0 – R3，R12自动压入当前线程的栈中，然后切换到PenSV异常处理。到PenSV异常后，Cortex{\reg}-M3工作模式切换到Handler模式，由函数rt{\_}hw{\_}pend{\_}sv进行处理。rt{\_}hw{\_}pend{\_}sv函{\cf}数会{\cf}载入{\cf}切换{\cf}出线{\cf}程和{\cf}切换{\cf}到线{\cf}程的{\cf}栈指{\cf}针，{\cf}如果{\cf}切换{\cf}出线{\cf}程的{\cf}栈指{\cf}针是{\cf}0那{\cf}么表{\cf}示这{\cf}是第{\cf}一次{\cf}线程{\cf}上下{\cf}文切{\cf}换，{\cf}不需{\cf}要对{\cf}切换{\cf}出线{\cf}程做{\cf}压栈{\cf}动作{\cf}。如{\cf}果切{\cf}换出{\cf}线程{\cf}栈指{\cf}针非{\cf}零，{\cf}则把{\cf}剩余{\cf}未压{\cf}栈的{\cf}R4{\cf} –{\cf} R{\cf}11{\cf}寄存{\cf}器依{\cf}次压{\cf}栈；{\cf}然后{\cf}从切{\cf}换到{\cf}线程{\cf}栈中{\cf}恢复{\cf}R4{\cf} –{\cf} R{\cf}11{\cf}寄存{\cf}器。{\cf}当从{\cf}Pe{\cf}nd{\cf}SV{\cf}异常{\cf}返回{\cf}时，{\cf}PS{\cf}R，{\cf}PC{\cf}，L{\cf}R，{\cf}R0{\cf} –{\cf} R{\cf}3，{\cf}R1{\cf}2等{\cf}寄存{\cf}器由Cortex{\reg} M3自动恢复。
 
-当{\cf}中断{\cf}达到{\cf}时，{\cf}当前{\cf}线程{\cf}会被{\cf}中断{\cf}并把{\cf}PC{\cf}，P{\cf}SR{\cf}，R{\cf}0 {\cf}– {\cf}R3{\cf}，R{\cf}12{\cf}等压{\cf}到当{\cf}前线{\cf}程栈{\cf}中，{\cf}工作{\cf}模式{\cf}切换{\cf}到H{\cf}an{\cf}dl{\cf}er{\cf}模式{\cf}。在{\cf}运行{\cf}中断{\cf}服务{\cf}例程{\cf}期间{\cf}， {\cf}如果{\cf}发生{\cf}了线{\cf}程切换（调用rt{\_}schedule）， 会先{\cf}判断{\cf}当前{\cf}工作{\cf}模式{\cf}是否{\cf}是H{\cf}an{\cf}dl{\cf}er{\cf}模式{\cf}（依{\cf}赖于{\cf}全局{\cf}变量rt{\_}interrupt{\_}nest）， 如{\cf}果是{\cf}则调{\cf}用rt{\_}hw{\_}context{\_}switch{\_}interrupt函数进行伪切换\citeup{liangzhiyong2010}：
+当{\cf}中断{\cf}达到{\cf}时，{\cf}当前{\cf}线程{\cf}会被{\cf}中断{\cf}并把{\cf}PC{\cf}，P{\cf}SR{\cf}，R{\cf}0 {\cf}– {\cf}R3{\cf}，R{\cf}12{\cf}等压{\cf}到当{\cf}前线{\cf}程栈{\cf}中，{\cf}工作{\cf}模式{\cf}切换{\cf}到H{\cf}an{\cf}dl{\cf}er{\cf}模式{\cf}。在{\cf}运行{\cf}中断{\cf}服务{\cf}例程{\cf}期间{\cf}， {\cf}如果{\cf}发生{\cf}了线{\cf}程切换（调用rt{\_}schedule）， 会先{\cf}判断{\cf}当前{\cf}工作{\cf}模式{\cf}是否{\cf}是H{\cf}an{\cf}dl{\cf}er{\cf}模式{\cf}（依{\cf}赖于{\cf}全局{\cf}变量~rt{\_}interrupt{\_}nest）， 如{\cf}果是{\cf}则调{\cf}用rt{\_}hw{\_}context{\_}switch{\_}interrupt函数进行伪切换\citeup{liangzhiyong2010}：
 
-在rt{\_}hw{\_}context{\_}switch{\_}interrupt函{\cf}数中{\cf}， {\cf}将把{\cf}当前{\cf}线程{\cf}栈指{\cf}针赋{\cf}值到 rt{\_}interrupt{\_}from{\_}thread 变{\cf}量上{\cf}， {\cf}把要{\cf}切换{\cf}过去{\cf}的线{\cf}程栈{\cf}指针{\cf}赋值{\cf}到 rt{\_}interrupt{\_}to{\_}thread 变{\cf}量上{\cf}， {\cf}并设{\cf}置中{\cf}断中{\cf}线程{\cf}切换{\cf}标志{\cf} rt thread{\_}switch{\_}interrput{\_}flag 为1。
+在rt{\_}hw{\_}context{\_}switch{\_}interrupt函{\cf}数中{\cf}， {\cf}将把{\cf}当前{\cf}线程{\cf}栈指{\cf}针赋{\cf}值到~rt{\_}interrupt~{\_}from{\_}thread~变{\cf}量上{\cf}， {\cf}把要{\cf}切换{\cf}过去{\cf}的线{\cf}程栈{\cf}指针{\cf}赋值{\cf}到 rt{\_}interrupt{\_}to{\_}thread 变{\cf}量上{\cf}， {\cf}并设{\cf}置中{\cf}断中{\cf}线程{\cf}切换{\cf}标志{\cf} rt thread{\_}switch{\_}interrput{\_}flag 为1。
 
-在{\cf}最后{\cf}一个{\cf}中断{\cf}服务{\cf}例程{\cf}结束{\cf}时，Cortex{\reg}-M3将{\cf}去处{\cf}理P{\cf}en{\cf}dS{\cf}V异{\cf}常，{\cf}因为{\cf}Pe{\cf}nd{\cf}SV{\cf}异常{\cf}的优{\cf}先级{\cf}是最{\cf}低的{\cf}，所{\cf}以只{\cf}有触{\cf}发过{\cf}Pe{\cf}nd{\cf}SV{\cf}异常{\cf}，它{\cf}将总{\cf}是在{\cf}最后{\cf}进行{\cf}处理\citeup{liming2014}。
+在{\cf}最后{\cf}一个{\cf}中断{\cf}服务{\cf}例程{\cf}结束{\cf}时，Cortex{\reg}-M3将{\cf}去处{\cf}理P{\cf}en{\cf}dS{\cf}V异{\cf}常，{\cf}因为~{\cf}Pe{\cf}nd{\cf}SV{\cf}异常{\cf}的优{\cf}先级{\cf}是最{\cf}低的{\cf}，所{\cf}以只{\cf}有触{\cf}发过{\cf}Pe{\cf}nd{\cf}SV{\cf}异常{\cf}，它{\cf}将总{\cf}是在{\cf}最后{\cf}进行{\cf}处理\citeup{liming2014}。
 
 这里就不进一步详细讨论RT-Thread在STM32上的移植了。事实上，RT-Thread开发组已经做了好STM32系列微控制器的大部分移植工作，从官网下载源码后作简单修改即可完成符合自身硬件的移植工作。
 
 前面讨论了，嵌入式操作系统是有很高的可裁剪性的，RT-Thread也不例外，通过启用或者关闭rtconfig.h头文件中的宏定义就可以很方便地保留或者裁剪系统的功能代码。本系统中将保留RT-Thread的默认配置选项：
-\begin{itemize}
+\begin{enumerate}
 \item 线程优先级支持，32优先级
 \item 内核对象支持命名，4字符
 \item 操作系统节拍单位，10毫秒（100拍/秒）
@@ -59,7 +60,7 @@ ARM{\reg} Cortex{\reg}-M3微{\cf}处理{\cf}器可{\cf}以说{\cf}是和{\cf}AR{
 \item 支持事件、邮箱、消息队列
 \item 支持内存池
 \item 支持RT-Thread自带的动态堆内存分配器
-\end{itemize}
+\end{enumerate}
 
 \subsection{系统嵌入式软件的总体框架}
 \pic[htbp]{系统嵌入式软件的总体框架}{width=0.5\textwidth}{embsw_block.pdf}
@@ -198,7 +199,7 @@ SQL提供了非常丰富的语句对数据库进行查询、排序、增加、�
 
 \subsubsection{产房监护模块}
 产房监护模块是语音系统的又一个重要模功能块，该模块不仅负责维护产妇的信息，同时也负责及时地关注婴儿的信息，对产妇信息和婴儿信息进行双重的维护。产房监护模块的具体功能框图如图~\ref{birth.pdf}~所示。
-\pic[htbp]{产房监护模块功能框图}{width=0.8\textwidth}{birth.pdf}
+\pic[H]{产房监护模块功能框图}{width=0.8\textwidth}{birth.pdf}
 
 \subsubsection{系统管理模块}
 系统管理模块是对整个系统的稳定运行以及数据进行管理的重要功能模块，主要包对系统数据、语音参数、病人信息、系统日志以及用户权限申请等进行监视和管理。具体功能模块图如图~\ref{sys_mngr.pdf}~所示。
