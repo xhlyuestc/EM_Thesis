@@ -974,7 +974,7 @@ FUNCTION {format.inproceedings.title}                                     %  Not
     { "" }                                                  %  authordate1.bst
     {
     typeoflit empty$
-       {format.title "[C]//" * title output.check}
+       {format.title "[C]" * title output.check}%"[C]//"
        {format.title "" * title output.check}
     if$
     }
@@ -1135,7 +1135,7 @@ FUNCTION {cbooklike.series.volume.number.pages}           %wk加入页码 ？？
     'skip$
     { duplicate$ empty$
         { pop$ format.pages }
-        { ":" * pages n.dashify * "" *}                                   %wk 改为第页
+        { "," * pages n.dashify * "" *}                                   %wk 改为第页  ","
       if$
     }
   if$}
@@ -1166,7 +1166,7 @@ FUNCTION {incollectionlike.series.volume.number.pages}             %wk
     'skip$
     { duplicate$ empty$
         { pop$ format.pages }
-        { ":" * pages n.dashify * "" *}                                   %wk 改为第页
+        { "," * pages n.dashify * "" *}                                   %wk 改为第页
       if$
     }
   if$}
@@ -1175,7 +1175,7 @@ FUNCTION {incollectionlike.series.volume.number.pages}             %wk
     'skip$
     { duplicate$ empty$
         { pop$ format.pages }
-        { ":" * pages n.dashify * "" *}                                   %wk 改为第页
+        { "," * pages n.dashify * "" *}                                   %wk 改为第页
       if$
     }
   if$}
@@ -1205,7 +1205,7 @@ FUNCTION {cincollectionlike.series.volume.number.pages}             %wk
     'skip$
     { duplicate$ empty$
         { pop$ format.pages }
-        { ":" * pages n.dashify * "" *}                                   %wk 改为第页
+        { "," * pages n.dashify * "" *}                                   %wk 改为第页
       if$
     }
   if$}
@@ -1214,7 +1214,7 @@ FUNCTION {cincollectionlike.series.volume.number.pages}             %wk
     'skip$
     { duplicate$ empty$
         { pop$ format.pages }
-        { ":" * pages n.dashify * "" *}                                   %wk 改为第页
+        { "," * pages n.dashify * "" *}                                   %wk 改为第页
       if$
     }
   if$}
@@ -1291,8 +1291,8 @@ FUNCTION {format.pages}
 { pages empty$
     { "" }
     { pages multi.page.check
-        { ":" pages n.dashify tie.or.space.connect * }
-        { ":" pages tie.or.space.connect  * }
+        { "," pages n.dashify tie.or.space.connect * }
+        { "," pages tie.or.space.connect  * }
       if$
     }
   if$
@@ -1302,8 +1302,8 @@ FUNCTION {format.pagesinbook}                               %  By the time the
 { pages empty$                                              %  reader has read
     { "" }                                                  %  address, pub'r,
     { pages multi.page.check                                %  note (where the
-        { ":" pages n.dashify tie.or.space.connect }   %  note may end with
-        { ":" pages tie.or.space.connect }              %  numbers), s/he
+        { "," pages n.dashify tie.or.space.connect }   %  note may end with
+        { "," pages tie.or.space.connect }              %  numbers), s/he
       if$                                                   %  may not recognise
     }                                                       %  a number-range as
   if$                                                       %  meaning pages.
@@ -1314,8 +1314,8 @@ FUNCTION {format.cpagesinbook}                              %  By the time the  
 { pages empty$                                              %  reader has read
     { "" }                                                  %  address, pub'r,
     { pages multi.page.check                                %  note (where the
-        { ":" * pages n.dashify tie.or.space.connect * "" }   %  note may end with
-        { ":" * "Page " pages tie.or.space.connect * ""}              %  numbers), s/he
+        { "," * pages n.dashify tie.or.space.connect * "" }   %  note may end with
+        { "," * "Page " pages tie.or.space.connect * ""}              %  numbers), s/he
       if$                                                   %  may not recognise
     }                                                       %  a number-range as
   if$                                                       %  meaning pages.
@@ -1341,7 +1341,7 @@ FUNCTION {format.vol.num.date.pages}                       %wk
     'skip$
     { duplicate$ empty$
         { pop$ format.pages }
-        { ":" * pages n.dashify * "" *}                                   %wk 改为第页
+        { "," * pages n.dashify * "" *}                                   %wk 改为第页
       if$
     }
   if$
@@ -1366,7 +1366,7 @@ FUNCTION {format.cvol.num.date.pages}                       %wk
     'skip$
     { duplicate$ empty$
         { pop$ format.pages }
-        { ":" * pages n.dashify * "" *}                                   %wk 改为第页
+        { "," * pages n.dashify * "" *}                                   %wk 改为第页
       if$
     }
   if$
@@ -1393,7 +1393,7 @@ number empty$                                                       %wk  被重�
     'skip$
     { duplicate$ empty$
         { pop$ format.pages }
-        { ":" * pages n.dashify * "" *}                                   %wk 改为第页
+        { "," * pages n.dashify * "" *}                                   %wk 改为第页
       if$
     }
   if$
@@ -1419,7 +1419,7 @@ number empty$                                                       %wk  被重�
     'skip$
     { duplicate$ empty$
         { pop$ format.pages }
-        { ":" * pages n.dashify * "" *}                                   %wk 改为第页
+        { "," * pages n.dashify * "" *}                                   %wk 改为第页
       if$
     }
   if$
@@ -1549,7 +1549,7 @@ FUNCTION {format.cchapter.pages.inbook}
     'skip$
     { duplicate$ empty$
         { pop$ format.pages }
-        { ":" * pages n.dashify * "" *}                                   %wk 改为第页
+        { "," * pages n.dashify * "" *}                                   %wk 改为第页
       if$
     }
   if$
@@ -1587,7 +1587,7 @@ FUNCTION {format.cchapter.pages.incoll}                       %wk
       if$
       pages empty$
         { "" * }
-        { ":" * format.pagesinbook "l" change.case$ "" * * }
+        { "," * format.pagesinbook "l" change.case$ "" * * }
       if$
     }
   if$

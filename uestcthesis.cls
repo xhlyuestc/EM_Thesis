@@ -43,7 +43,8 @@
 \RequirePackage{etoolbox}[2011/01/03]
 \RequirePackage{ifthen}
 
-\newcommand{\cf}{{\fontsize{0.01pt}{\baselineskip}\selectfont .}}
+\newcommand{\cf}{{\fontsize{0.01pt}{\baselineskip}\selectfont 艹}}
+%\newcommand{\cf}{}
 
 \newcommand{\bachelor@uestcthesis}{
 \newcommand{\degree@uestcthesis}{bachelor}
@@ -761,12 +762,12 @@ pdfkeywords={\@pdfckeywords}%在pdf元信息中加入关键字
 \providecommand{\hlesc}[1]{\textcolor[rgb]{0,0,0}{#1}}
 \providecommand{\hlstr}[1]{\textcolor[rgb]{0,0,0}{#1}}
 \providecommand{\hlpps}[1]{\textcolor[rgb]{0,0,0}{#1}}
-\providecommand{\hlslc}[1]{\textcolor[rgb]{0.4,0.4,0.4}{{#1}}}
-\providecommand{\hlcom}[1]{\textcolor[rgb]{0.4,0.4,0.4}{{#1}}}
+\providecommand{\hlslc}[1]{\textcolor[rgb]{0,0,0}{{#1}}}
+\providecommand{\hlcom}[1]{\textcolor[rgb]{0,0,0}{{#1}}}
 \providecommand{\hlppc}[1]{\textcolor[rgb]{0,0,0}{\txttbf{#1}}}
 \providecommand{\hlopt}[1]{\textcolor[rgb]{0,0,0}{\txttbf{#1}}}
 \providecommand{\hlipl}[1]{\textcolor[rgb]{0,0,0}{#1}}
-\providecommand{\hllin}[1]{\textcolor[rgb]{0.53,0.53,0.53}{#1}}
+\providecommand{\hllin}[1]{\textcolor[rgb]{0,0,0}{#1}}
 \providecommand{\hlkwa}[1]{\textcolor[rgb]{0,0,0}{\txttbf{#1}}}
 \providecommand{\hlkwb}[1]{\textcolor[rgb]{0,0,0}{\txttbf{#1}}}
 \providecommand{\hlkwc}[1]{\textcolor[rgb]{0,0,0}{\txttbf{#1}}}
